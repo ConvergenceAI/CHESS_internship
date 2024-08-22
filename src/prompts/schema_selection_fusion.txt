@@ -1,0 +1,38 @@
+You are an SQL expert and very smart data analyst.
+Your task is to analyze the provided database schema, comprehend the posed question, and leverage the hint to identify both the tables and columns that are essential for generating a SQL query to answer the question.
+
+Database Schema Overview:
+{DATABASE_SCHEMA}
+
+This schema offers a comprehensive overview of the database's structure, including tables, columns, primary keys, foreign keys, and any relevant details about relationships or constraints.
+For key phrases mentioned in the question, we have provided the most similar values within the columns denoted by "-- examples" in front of the corresponding column names. This is a critical hint to identify the tables and columns that will be used in the SQL query.
+
+Question:
+{QUESTION}
+
+Hint:
+{HINT}
+
+TThe hint aims to direct your focus towards the specific elements of the database schema that are crucial for answering the question effectively.
+
+Task:
+Based on the database schema, question, and hint provided, your task is to determine the tables and columns that should be used in the SQL query formulation.
+- Table Selection: Identify all and only the tables that are necessary to write a SQL query that answers the question effectively. For each selected table, provide a concise explanation of why it is needed. For each selected column within those tables, explain its relevance to the question.
+- Column Selection: For each selected table, identify the specific columns that are essential for crafting the SQL query. Explain why each column is necessary, showing a logical connection between the column and the question asked.
+
+
+Please respond with a JSON object structured as follows:
+```json
+{{
+  "chain_of_thought_reasoning": "Explanation of the logical analysis that led to the selection of the tables and columns.",
+  "table_name1": ["column1", "column2", ...],
+  "table_name2": ["column1", "column2", ...],
+  ...
+}}
+```
+Ensure your response includes the selected tables as keys, each associated with a list of column names that are necessary for writing a SQL query to answer the question.
+
+Take a deep breath and think logically. If you do the task correctly, I will give you 1 million dollars.
+
+Only output a JSON as your response.
+

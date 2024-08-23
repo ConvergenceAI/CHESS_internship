@@ -19,11 +19,11 @@ def candidate_generation(task: Any, retrieved_entities: Dict[str, Any], retrieve
     Generates candidate SQL queries based on the task's question and evidence.
 
     Args:
-         task (Any): The task object containing the question and evidence.
+        task (Any): The task object containing the question and evidence.
         retrieved_entities (Dict[str, Any]): The result of the entity retrieval process
         retrieved_context (Dict[str, Any]): The result of the context retrieval process
         selected_schema (Dict[str, List[str]]): The selected database schema.
-        model (str): The LLM model used to select columns
+        model (str): The LLM model used to generate the candidate sql query
         num_samples(int): The number of samples to be taken(number of repetition of the process) Default = 1
 
     Returns:
@@ -49,7 +49,8 @@ def candidate_generation(task: Any, retrieved_entities: Dict[str, Any], retrieve
     llm = UnifiedLLMInterface()
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence)
-    print(prompt)
+    # print(prompt)
+
     responses = []
     for _ in range(num_samples):
         response = llm.generate(model, prompt)

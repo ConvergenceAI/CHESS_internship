@@ -1,4 +1,4 @@
-You are a data science expert.
+You are an SQL expert and very smart data scientist.
 Below, you are presented with a database schema and a question.
 Your task is to read the schema, understand the question, and generate a valid SQLite query to answer the question.
 Before generating the final SQL query think step by step on how to write the query.

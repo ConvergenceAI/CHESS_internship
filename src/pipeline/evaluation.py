@@ -28,13 +28,17 @@ def evaluation(task: Any, generated_candidate: Dict[str, Any], revised_candidate
         "revision": revised_candidate
     }
     result = {}
-
-    for evaluation_for, result in to_evaluate.items():
+    result.update({
+        "Question": task.question,
+        "Evidence": task.evidence,
+        "GOLD_SQL": ground_truth_sql,
+    })
+    for evaluation_for, res in to_evaluate.items():
         predicted_sql = "--"
         evaluation_result = {}
 
         try:
-            predicted_sql = result["SQL"]
+            predicted_sql = res["SQL"]
             response = compare_sqls(db_path,
                                     predicted_sql=predicted_sql,
                                     ground_truth_sql=ground_truth_sql,
@@ -43,20 +47,16 @@ def evaluation(task: Any, generated_candidate: Dict[str, Any], revised_candidate
             evaluation_result.update({
                 "exec_res": response["exec_res"],
                 "exec_err": response["exec_err"],
+                "Predicted SQL": predicted_sql,
             })
 
         except Exception as e:
             evaluation_result.update({
                 "exec_res": "error",
                 "exec_err": str(e),
+                "Predicted SQL": predicted_sql,
             })
 
-        evaluation_result.update({
-            "Question": task.question,
-            "Evidence": task.evidence,
-            "GOLD_SQL": ground_truth_sql,
-            "PREDICTED_SQL": predicted_sql
-        })
         result[evaluation_for] = evaluation_result
 
     return result

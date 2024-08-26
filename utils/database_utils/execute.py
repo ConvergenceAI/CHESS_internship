@@ -51,7 +51,7 @@ def execute_query(db_path: str, sql: str, fetch: Union[str, int] = "all") -> Any
         raise e
 
 
-def _compare_sqls_outcomes_1(db_path: str, predicted_sql: str, ground_truth_sql: str) -> int:
+def _compare_sqls_outcomes(db_path: str, predicted_sql: str, ground_truth_sql: str) -> int:
     """
     Compares the outcomes of two SQL queries to check for equivalence.
 
@@ -69,21 +69,12 @@ def _compare_sqls_outcomes_1(db_path: str, predicted_sql: str, ground_truth_sql:
     try:
         predicted_res = execute_query(db_path, predicted_sql)
         ground_truth_res = execute_query(db_path, ground_truth_sql)
-        # The results of queries will be in the format of list of tuples
-        # Step 1: Normalize each tuple by sorting the elements within the tuple
-        sorted_predicted_res = [tuple(sorted(t)) for t in predicted_res]
-        sorted_ground_truth_res = [tuple(sorted(t)) for t in ground_truth_res]
-
-        # Step 2: Sort the list of tuples
-        sorted_predicted_res.sort()
-        sorted_ground_truth_res.sort()
-
-        return sorted_predicted_res == sorted_ground_truth_res
+        return int(set(predicted_res) == set(ground_truth_res))
     except Exception as e:
         raise e
 
 
-def _compare_sqls_outcomes_2(db_path: str, predicted_sql: str, ground_truth_sql: str) -> int:
+def _compare_sqls_outcomes_1(db_path: str, predicted_sql: str, ground_truth_sql: str) -> int:
     """
     Compares the outcomes of two SQL queries to check for equivalence.
 
@@ -131,7 +122,7 @@ def compare_sqls(db_path: str, predicted_sql: str, ground_truth_sql: str, meta_t
     """
     predicted_sql = _clean_sql(predicted_sql)
     try:
-        res = func_timeout(meta_time_out, _compare_sqls_outcomes_1, args=(db_path, predicted_sql, ground_truth_sql))
+        res = func_timeout(meta_time_out, _compare_sqls_outcomes, args=(db_path, predicted_sql, ground_truth_sql))
         error = "incorrect answer" if res == 0 else "--"
     except FunctionTimedOut:
         error = "timeout"

@@ -67,7 +67,7 @@ def revision(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: D
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence,
                                     MISSING_ENTITIES=missing_entities, SQL=predicted_query, QUERY_RESULT=query_result)
-
+    # print(prompt)
     responses = []
     for _ in range(num_samples):
         response = llm.generate(model, prompt)

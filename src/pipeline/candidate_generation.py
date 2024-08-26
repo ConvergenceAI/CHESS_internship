@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from utils.response_parsers import candidate_generation_parser
 
 load_dotenv()
-PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\candidate_generation.txt"
+PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\\candidate_generation.txt"
 
 
 def candidate_generation(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: Dict[str, Any],

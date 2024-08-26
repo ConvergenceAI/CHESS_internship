@@ -59,7 +59,7 @@ def revision(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: D
         raise e
 
     try:
-        missing_entities = find_wrong_entities(predicted_query, schema_with_examples)
+        missing_entities = find_wrong_entities(db_path, predicted_query, schema_with_examples)
     except Exception as e:
         raise e
 

@@ -1,6 +1,20 @@
 import sqlite3
 import random
 from typing import Union, Any, List, Dict
+from func_timeout import func_timeout, FunctionTimedOut
+
+
+def _clean_sql(sql: str) -> str:
+    """
+    Cleans the SQL query by removing unwanted characters and whitespace.
+
+    Args:
+        sql (str): The SQL query string.
+
+    Returns:
+        str: The cleaned SQL query string.
+    """
+    return sql.replace('\n', ' ').replace('"', "'").strip("`.")
 
 
 def execute_query(db_path: str, sql: str, fetch: Union[str, int] = "all") -> Any:
@@ -35,6 +49,97 @@ def execute_query(db_path: str, sql: str, fetch: Union[str, int] = "all") -> Any
                 raise ValueError("Invalid fetch argument. Must be 'all', 'one', 'random', or an integer.")
     except Exception as e:
         raise e
+
+
+def _compare_sqls_outcomes_1(db_path: str, predicted_sql: str, ground_truth_sql: str) -> int:
+    """
+    Compares the outcomes of two SQL queries to check for equivalence.
+
+    Args:
+        db_path (str): The path to the database file.
+        predicted_sql (str): The predicted SQL query.
+        ground_truth_sql (str): The ground truth SQL query.
+
+    Returns:
+        int: 1 if the outcomes are equivalent, 0 otherwise.
+
+    Raises:
+        Exception: If an error occurs during SQL execution.
+    """
+    try:
+        predicted_res = execute_query(db_path, predicted_sql)
+        ground_truth_res = execute_query(db_path, ground_truth_sql)
+        # The results of queries will be in the format of list of tuples
+        # Step 1: Normalize each tuple by sorting the elements within the tuple
+        sorted_predicted_res = [tuple(sorted(t)) for t in predicted_res]
+        sorted_ground_truth_res = [tuple(sorted(t)) for t in ground_truth_res]
+
+        # Step 2: Sort the list of tuples
+        sorted_predicted_res.sort()
+        sorted_ground_truth_res.sort()
+
+        return sorted_predicted_res == sorted_ground_truth_res
+    except Exception as e:
+        raise e
+
+
+def _compare_sqls_outcomes_2(db_path: str, predicted_sql: str, ground_truth_sql: str) -> int:
+    """
+    Compares the outcomes of two SQL queries to check for equivalence.
+
+    Args:
+        db_path (str): The path to the database file.
+        predicted_sql (str): The predicted SQL query.
+        ground_truth_sql (str): The ground truth SQL query.
+
+    Returns:
+        int: 1 if the outcomes are equivalent, 0 otherwise.
+
+    Raises:
+        Exception: If an error occurs during SQL execution.
+    """
+
+    try:
+        SQL1 = f"""
+        SELECT * FROM ({ground_truth_sql}) AS Query1 EXCEPT
+        SELECT * FROM ({predicted_sql}) AS Query2;"""
+        SQL2 = f"""
+        SELECT * FROM ({predicted_sql}) AS Query1 EXCEPT
+        SELECT * FROM ({ground_truth_sql}) AS Query2;"""
+        res1 = execute_query(db_path, SQL1)
+        res2 = execute_query(db_path, SQL2)
+        if len(set(res1)) == 0 and len(set(res2)) == 0:
+            return 1
+        return 0
+    except Exception as e:
+        raise e
+
+
+def compare_sqls(db_path: str, predicted_sql: str, ground_truth_sql: str, meta_time_out: int = 30) -> Dict[
+    str, Union[int, str]]:
+    """
+    Compares predicted SQL with ground truth SQL within a timeout.
+
+    Args:
+        db_path (str): The path to the database file.
+        predicted_sql (str): The predicted SQL query.
+        ground_truth_sql (str): The ground truth SQL query.
+        meta_time_out (int): The timeout for the comparison.
+
+    Returns:
+        dict: A dictionary with the comparison result and any error message.
+    """
+    predicted_sql = _clean_sql(predicted_sql)
+    try:
+        res = func_timeout(meta_time_out, _compare_sqls_outcomes_1, args=(db_path, predicted_sql, ground_truth_sql))
+        error = "incorrect answer" if res == 0 else "--"
+    except FunctionTimedOut:
+        error = "timeout"
+        res = 0
+    except Exception as e:
+        error = str(e)
+        res = 0
+    return {'exec_res': res, 'exec_err': error}
 
 
 def validate_sql_query(db_path: str, sql: str, max_returned_rows: int = 30) -> Dict[str, Union[str, Any]]:

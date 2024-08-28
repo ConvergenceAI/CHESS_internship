@@ -6,7 +6,7 @@ from utils.prompt import load_prompt
 from utils.response_parsers import list_parser
 
 load_dotenv()
-PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\keyword_extraction.txt"
+PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\\keyword_extraction.txt"
 
 
 def keyword_extraction(task: Any, model: str) -> List[str]:

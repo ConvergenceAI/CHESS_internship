@@ -45,11 +45,9 @@ def candidate_generation(task: Any, retrieved_entities: Dict[str, Any], retrieve
         db_path=db_path,
     )
     schema_string = schema_generator.generate_schema_string(include_value_description=True)
-
     llm = UnifiedLLMInterface()
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence)
-    # print(prompt)
 
     responses = []
     for _ in range(num_samples):

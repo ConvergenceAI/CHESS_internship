@@ -205,9 +205,10 @@ class DatabaseSchema:
         Returns:
             Optional[ColumnInfo]: The ColumnInfo if found, otherwise None.
         """
+        actual_table_name = self.get_actual_table_name(table_name)
         actual_name = self.get_actual_column_name(table_name, column_name)
-        if actual_name:
-            return self.tables[table_name].columns[actual_name]
+        if actual_name and actual_table_name:
+            return self.tables[actual_table_name].columns[actual_name]
         return None
 
     def set_columns_info(self, schema_with_info: Dict[str, Dict[str, Dict[str, Any]]]) -> None:

@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from utils.response_parsers import json_parser
 
 load_dotenv()
-PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\column_selection.txt"
+PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\\column_selection.txt"
 
 
 def column_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: Dict[str, Any],
@@ -47,7 +47,6 @@ def column_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_co
     llm = UnifiedLLMInterface()
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence)
-    print(prompt)
     responses = []
     for _ in range(num_samples):
         response = llm.generate(model, prompt)

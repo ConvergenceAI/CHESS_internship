@@ -2,7 +2,7 @@ MODEL_CONFIGS = {
     "gpt-3.5": {
         "provider": "openai",
         "model": "gpt-3.5-turbo",
-        "temperature": 0,
+        "temperature": 0.2,
         "max_tokens": 4000,
         "model_type": "chat"
     },
@@ -46,7 +46,7 @@ MODEL_CONFIGS = {
         "model": "microsoft/Phi-3-mini-4k-instruct",
         "temperature": 0,
         "model_type": "inference",
-        "max_tokens": 2500
+        "max_tokens": 4000
     },
     "Athene": {
         "provider": "huggingface",

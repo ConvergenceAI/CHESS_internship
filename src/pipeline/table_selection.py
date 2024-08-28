@@ -1,6 +1,7 @@
 import os
 from typing import Any, Dict, List
 from src.llm.llm_interface import UnifiedLLMInterface
+from utils.database_utils.db_info import get_db_schema
 from utils.prompt import load_prompt
 from utils.database_utils.schema import DatabaseSchema
 from utils.database_utils.schema_generator import DatabaseSchemaGenerator
@@ -13,7 +14,7 @@ PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\\table_selection.txt"
 
 
 def table_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: Dict[str, Any],
-                    tentative_schema: Dict[str, List[str]], model: str, num_samples=1) -> Dict[str, Any]:
+                    tentative_schema: Dict[str, List[str]] or None, model: str, num_samples=1) -> Dict[str, Any]:
     """
 
     Selects tables based on the task question and hint.
@@ -34,6 +35,9 @@ def table_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_con
     db_path = db_directory_path + f"/{task.db_id}.sqlite"
     schema_with_examples = retrieved_entities["similar_values"]
     schema_with_descriptions = retrieved_context["schema_with_descriptions"]
+    # if the column filtering module is removed we may use directly the base schema
+    if tentative_schema is None:
+        tentative_schema = get_db_schema(db_path)
 
     schema_generator = DatabaseSchemaGenerator(
         tentative_schema=DatabaseSchema.from_schema_dict(tentative_schema),
@@ -49,7 +53,6 @@ def table_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_con
     llm = UnifiedLLMInterface()
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence)
-    print(prompt)
     responses = []
     for _ in range(num_samples):
         response = llm.generate(model, prompt)

@@ -1,6 +1,7 @@
 import os
 from typing import Any, Dict, List
 from src.llm.llm_interface import UnifiedLLMInterface
+from utils.database_utils.db_info import get_db_schema
 from utils.prompt import load_prompt
 from utils.database_utils.schema import DatabaseSchema
 from utils.database_utils.schema_generator import DatabaseSchemaGenerator
@@ -13,7 +14,8 @@ PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\\schema_selection_fusion.txt"
 
 
 def schema_selection_fusion(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: Dict[str, Any],
-                            tentative_schema: Dict[str, List[str]], model: str, num_samples=1) -> Dict[str, Any]:
+                            tentative_schema: Dict[str, List[str]] or None, llm: UnifiedLLMInterface, model: str,
+                            num_samples=1) -> Dict[str, Any]:
     """
     Selects the database schema based on the task question and hint
     This is a fusion of the table and column selection modules in one module
@@ -23,6 +25,7 @@ def schema_selection_fusion(task: Any, retrieved_entities: Dict[str, Any], retri
         retrieved_entities (Dict[str, Any]): The result of the entity retrieval process
         retrieved_context (Dict[str, Any]): The result of the context retrieval process
         tentative_schema (Dict[str, List[str]]): The current tentative schema.
+        llm(UnifiedLLMInterface): The shared LLM interface instance used for making API calls
         model (str): The LLM model used to select columns
         num_samples(int): The number of samples to be taken(number of repetition of the process) Default = 1
 
@@ -33,6 +36,10 @@ def schema_selection_fusion(task: Any, retrieved_entities: Dict[str, Any], retri
     db_path = db_directory_path + f"/{task.db_id}.sqlite"
     schema_with_examples = retrieved_entities["similar_values"]
     schema_with_descriptions = retrieved_context["schema_with_descriptions"]
+
+    # if the column filtering module is removed we may use directly the base schema
+    if tentative_schema is None:
+        tentative_schema = get_db_schema(db_path)
 
     schema_generator = DatabaseSchemaGenerator(
         tentative_schema=DatabaseSchema.from_schema_dict(tentative_schema),
@@ -45,7 +52,6 @@ def schema_selection_fusion(task: Any, retrieved_entities: Dict[str, Any], retri
     )
     schema_string = schema_generator.generate_schema_string(include_value_description=True)
 
-    llm = UnifiedLLMInterface()
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence)
     responses = []

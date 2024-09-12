@@ -13,7 +13,8 @@ PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\\column_selection.txt"
 
 
 def column_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: Dict[str, Any],
-                     tentative_schema: Dict[str, List[str]], model: str, num_samples=1) -> Dict[str, Any]:
+                     tentative_schema: Dict[str, List[str]], llm: UnifiedLLMInterface, model: str, num_samples=1) -> \
+        Dict[str, Any]:
     """
     Selects columns based on the task question and hint
 
@@ -22,6 +23,7 @@ def column_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_co
         retrieved_entities (Dict[str, Any]): The result of the entity retrieval process
         retrieved_context (Dict[str, Any]): The result of the context retrieval process
         tentative_schema (Dict[str, List[str]]): The current tentative schema.
+        llm(UnifiedLLMInterface): The shared LLM interface instance used for making API calls
         model (str): The LLM model used to select columns
         num_samples(int): The number of samples to be taken(number of repetition of the process) Default = 1
 
@@ -44,7 +46,6 @@ def column_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_co
     )
     schema_string = schema_generator.generate_schema_string(include_value_description=True)
 
-    llm = UnifiedLLMInterface()
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence)
     responses = []

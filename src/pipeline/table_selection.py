@@ -14,7 +14,8 @@ PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\\table_selection.txt"
 
 
 def table_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: Dict[str, Any],
-                    tentative_schema: Dict[str, List[str]] or None, model: str, num_samples=1) -> Dict[str, Any]:
+                    tentative_schema: Dict[str, List[str]] or None, llm: UnifiedLLMInterface, model: str,
+                    num_samples=1) -> Dict[str, Any]:
     """
 
     Selects tables based on the task question and hint.
@@ -24,6 +25,7 @@ def table_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_con
         retrieved_entities (Dict[str, Any]): The result of the entity retrieval process
         retrieved_context (Dict[str, Any]): The result of the context retrieval process
         tentative_schema (Dict[str, List[str]]): The current tentative schema.
+        llm(UnifiedLLMInterface): The shared LLM interface instance used for making API calls
         model (str): The LLM model used to select tables
         num_samples(int): The number of samples to be taken(number of repetition of the process) Default = 1
 
@@ -35,6 +37,7 @@ def table_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_con
     db_path = db_directory_path + f"/{task.db_id}.sqlite"
     schema_with_examples = retrieved_entities["similar_values"]
     schema_with_descriptions = retrieved_context["schema_with_descriptions"]
+
     # if the column filtering module is removed we may use directly the base schema
     if tentative_schema is None:
         tentative_schema = get_db_schema(db_path)
@@ -50,7 +53,6 @@ def table_selection(task: Any, retrieved_entities: Dict[str, Any], retrieved_con
     )
     schema_string = schema_generator.generate_schema_string(include_value_description=True)
 
-    llm = UnifiedLLMInterface()
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence)
     responses = []

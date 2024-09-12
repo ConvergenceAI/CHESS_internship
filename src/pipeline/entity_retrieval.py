@@ -1,42 +1,53 @@
 import difflib
 import os
 import pickle
+import re
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Any
 from dotenv import load_dotenv
 
 load_dotenv()
+
 from datasketch import MinHash, MinHashLSH
 
 from src.preprocess.database_lsh import _create_minhash
 from src.embedding.embedding_interface import UnifiedEmbeddingInterface
 from utils.database_utils.db_info import get_db_schema
+import time
 
-EMBEDDING = UnifiedEmbeddingInterface()
+EMBEDDING: UnifiedEmbeddingInterface = None
 
 
-def entity_retrieval(task: Any, embedding_model_name: str, keywords: List[str]) -> Dict[str, Any]:
+def entity_retrieval(task: Any, embedding_model_name: str, embedding: UnifiedEmbeddingInterface, keywords: List[str]) -> \
+        Dict[str, Any]:
     """
     Retrieves entities and columns similar to given keywords from the task.
 
     Args:
         task (Any): The task object containing the evidence and question.
         embedding_model_name (str): The name of the embedding model used in the entity retrieval process
+        embedding(UnifiedEmbeddingInterface): The shared embedding interface instance used for making API calls
         keywords (List[str]): The keywords extracted from the evidence and question
 
     Returns:
         Dict[str, Any]: A dictionary containing similar columns and values.
     """
 
+    global EMBEDDING
+    # Set the global EMBEDDING variable to the shared embedding instance
+    EMBEDDING = embedding
+
     db_path = os.getenv("DB_ROOT_PATH") + "/" + task.db_id
     similar_columns = get_similar_columns(db_path=db_path, keywords=keywords, question=task.question,
                                           hint=task.evidence, embedding_model_name=embedding_model_name)
     result = {"similar_columns": similar_columns}
 
+    start_time = time.time()
     similar_values = get_similar_entities(embedding_model_name=embedding_model_name, db_path=db_path,
                                           keywords=keywords)
     result["similar_values"] = similar_values
-
+    end_time = time.time()
+    # print(f"Time taken to retrieve similar entities: {end_time - start_time}")
     return result
 
 
@@ -59,7 +70,9 @@ def get_similar_columns(db_path: str, keywords: List[str], question: str, hint: 
         similar_columns = _get_similar_column_names(db_path=db_path, keyword=keyword, question=question, hint=hint,
                                                     embedding_model_name=embedding_model_name)
         for table_name, column_name in similar_columns:
-            selected_columns.setdefault(table_name, []).append(column_name)
+            selected_columns.setdefault(table_name, set()).add(column_name)
+
+    selected_columns = {table_name: list(columns) for table_name, columns in selected_columns.items()}
     return selected_columns
 
 
@@ -87,6 +100,7 @@ def _get_similar_column_names(db_path: str, keyword: str, question: str, hint: s
 
     if " " in keyword:
         potential_column_names.extend(part.strip() for part in keyword.split())
+
     db_name = db_path.split("/")[-1]
     db_path = db_path + "/" + db_name + ".sqlite"
     schema = get_db_schema(db_path)
@@ -159,22 +173,26 @@ def get_similar_entities(embedding_model_name: str, db_path: str, keywords: List
     Returns:
         Dict[str, Dict[str, List[str]]]: A dictionary mapping table and column names to similar entities.
     """
-
+    start_time = time.time()
     lsh, minhashes = _load_db_lsh(db_path)
+    end_time = time.time()
+    # print("time taken to load DB LSH model: {}\n".format(end_time - start_time))
     selected_values = {}
 
     for keyword in keywords:
+        # print("Working on keyword {}\n".format(keyword))
         keyword = keyword.strip()
         to_search_values = [keyword]
+        # Split the keyword into words and include only numerical and date values
         if (" " in keyword) and ("=" not in keyword):
-            for i in range(len(keyword)):
-                if keyword[i] == " ":
-                    first_part = keyword[:i]
-                    second_part = keyword[i + 1:]
-                    if first_part not in to_search_values:
-                        to_search_values.append(first_part)
-                    if second_part not in to_search_values:
-                        to_search_values.append(second_part)
+            # Split the keyword into words
+            parts = keyword.split(" ")
+
+            # Iterate through the split words
+            for part in parts:
+                # Check if the word is a numerical value or a date
+                if (part.isdigit() or is_date(part)) and part not in to_search_values:
+                    to_search_values.append(part)
 
         to_search_values.sort(key=len, reverse=True)
         hint_column, hint_value = _column_value(keyword)
@@ -182,9 +200,12 @@ def get_similar_entities(embedding_model_name: str, db_path: str, keywords: List
             to_search_values = [hint_value, *to_search_values]
 
         for ts in to_search_values:
-            unique_similar_values = _query_lsh(lsh, minhashes, keyword=ts, signature_size=20, top_n=10)
-            similar_values = _get_similar_entities_to_keyword(embedding_model_name, ts, unique_similar_values)
+            unique_similar_values = _query_lsh(lsh, minhashes, keyword=ts, signature_size=20, top_n=7)
 
+            start_time = time.time()
+            similar_values = _get_similar_entities_to_keyword(embedding_model_name, ts, unique_similar_values)
+            end_time = time.time()
+            # print(f"time taken to search for the similar entities to the given keyword {ts} : {end_time - start_time}\n")
             for table_name, column_values in similar_values.items():
                 for column_name, entities in column_values.items():
                     if entities:
@@ -197,6 +218,7 @@ def get_similar_entities(embedding_model_name: str, db_path: str, keywords: List
             selected_values[table_name][column_name] = list(set(
                 value for _, value, edit_distance, _ in values if edit_distance == max_edit_distance
             ))
+
     return selected_values
 
 
@@ -237,7 +259,7 @@ def _get_similar_values(embedding_model_name: str, target_string: str, values: L
 
     # hyperparameters
     edit_distance_threshold = 0.3
-    top_k_edit_distance = 5
+    top_k_edit_distance = 3
     embedding_similarity_threshold = 0.6
     top_k_embedding = 1
 
@@ -251,10 +273,13 @@ def _get_similar_values(embedding_model_name: str, target_string: str, values: L
     # sort them in decreasing order and extract the top_k_edit distance
     edit_distance_similar_values.sort(key=lambda x: x[1], reverse=True)
     edit_distance_similar_values = edit_distance_similar_values[:top_k_edit_distance]
-
+    start_time = time.time()
     # compute the embedding similarities of remaining values
     similarities = EMBEDDING.compute_similarities(embedding_model_name, target_string,
                                                   [value for value, _ in edit_distance_similar_values])
+    end_time = time.time()
+    # print(f"Time taken to compute the embedding similarities of remaining values: {end_time - start_time}\n")
+
     # extract the values with embedding similarities above the threshold
     embedding_similar_values = [
         (target_string, edit_distance_similar_values[i][0], edit_distance_similar_values[i][1], similarities[i])
@@ -282,6 +307,20 @@ def _column_value(string: str) -> Tuple[Optional[str], Optional[str]]:
         second_part = string[left_equal + 1:].strip() if len(string) > left_equal + 1 else None
         return first_part, second_part
     return None, None
+
+
+def is_date(value: str) -> bool:
+    """
+    Checks if the given string is a date in common formats like YYYY-MM-DD, DD/MM/YYYY, or DD.MM.YYYY.
+
+    Args:
+        value (str): The string to check.
+
+    Returns:
+        bool: True if the string matches a date format, False otherwise.
+    """
+    date_pattern = re.compile(r"^\d{4}[-/\.]\d{1,2}[-/\.]\d{1,2}$|^\d{1,2}[-/\.]\d{1,2}[-/\.]\d{4}$")
+    return bool(date_pattern.match(value))
 
 
 ### Database value similarity retrieval
@@ -341,8 +380,10 @@ def _query_lsh(lsh: MinHashLSH, minhashes: Dict[str, Tuple[MinHash, str, str, st
     """
     # create the minhash of the searched keyword
     query_minhash = _create_minhash(signature_size, keyword, n_gram)
+
     # retrieve the keys of similar values of lsh as the query_minhash
     results = lsh.query(query_minhash)  # returns a list of keys
+
     # compute the jaccard similarities for the retrieved minhashes with the query_minhash
     similarities = [(result, _jaccard_similarity(query_minhash, minhashes[result][0])) for result in results]
 
@@ -350,6 +391,7 @@ def _query_lsh(lsh: MinHashLSH, minhashes: Dict[str, Tuple[MinHash, str, str, st
     similarities = sorted(similarities, key=lambda x: x[1], reverse=True)[:top_n]
 
     similar_values_trimmed: Dict[str, Dict[str, List[str]]] = {}
+
     for hash_key, similarity in similarities:
         table_name, column_name, value = minhashes[hash_key][1:]
         if table_name not in similar_values_trimmed:

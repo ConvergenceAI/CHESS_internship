@@ -17,6 +17,7 @@ class UnifiedEmbeddingInterface:
         self.hf_token = os.getenv("HF_TOKEN")
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         self.clients = {}
+        self.total_cost = 0
 
     def get_hf_client(self, model_name):
         if model_name not in self.clients:
@@ -28,12 +29,14 @@ class UnifiedEmbeddingInterface:
             self.clients['openai'] = OpenAI(api_key=self.openai_api_key)
         return self.clients['openai']
 
-    def get_openai_embedding(self, model_name, text: str):
+    def get_openai_embedding(self, model_name, text: str, price_per_1k_tokens: float):
         client = self.get_openai_client()
         response = client.embeddings.create(
             model=model_name,
             input=[text]
         )
+        tokens = response.usage.total_tokens
+        self.total_cost += (tokens / 1000) * price_per_1k_tokens
         return response.data[0].embedding
 
     def compute_similarities_hf(self, model_name: str, source_sentence: str, sentences: List[str]):
@@ -52,9 +55,9 @@ class UnifiedEmbeddingInterface:
         response_json = response.json()
         return response_json
 
-    def compute_similarities_openai(self, model_name: str, source_sentence: str, sentences: List[str]):
-        source_sentence_embedding = self.get_openai_embedding(model_name, source_sentence)
-        sentences_embeddings = [self.get_openai_embedding(model_name, sentence) for sentence in sentences]
+    def compute_similarities_openai(self, model_name: str, source_sentence: str, sentences: List[str], price: float):
+        source_sentence_embedding = self.get_openai_embedding(model_name, source_sentence, price)
+        sentences_embeddings = [self.get_openai_embedding(model_name, sentence, price) for sentence in sentences]
         similarities = [np.dot(source_sentence_embedding, embedding) for embedding in sentences_embeddings]
         return similarities
 
@@ -73,9 +76,13 @@ class UnifiedEmbeddingInterface:
         model_info = EMBEDDING_CONFIGS[model_name]
         provider = model_info['provider']
         model_name = model_info['model']
+        price = model_info.get('price_per_1k_tokens', 0)
         if provider == 'openai':
-            return self.compute_similarities_openai(model_name, source_sentence, sentences)
+            return self.compute_similarities_openai(model_name, source_sentence, sentences, price)
         elif provider == 'huggingface':
             return self.compute_similarities_hf(model_name, source_sentence, sentences)
         else:
             raise ValueError(f"Unknown provider: {provider}")
+
+    def get_total_cost(self):
+        return self.total_cost

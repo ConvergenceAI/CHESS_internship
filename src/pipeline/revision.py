@@ -18,7 +18,8 @@ PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\\revision.txt"
 
 
 def revision(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: Dict[str, Any],
-             generated_candidate: Dict[str, Any], model: str, num_samples=1) -> Dict[str, Any]:
+             generated_candidate: Dict[str, Any], llm: UnifiedLLMInterface, model: str, num_samples=1) -> Dict[
+    str, Any]:
     """
     Revises the predicted SQL query based on task evidence and schema information.
 
@@ -27,6 +28,7 @@ def revision(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: D
         retrieved_entities (Dict[str, Any]): The result of the entity retrieval process
         retrieved_context (Dict[str, Any]): The result of the context retrieval process
         generated_candidate(Dict[str,Any]): The result of the candidate generation process
+        llm(UnifiedLLMInterface): The shared LLM interface instance used for making API calls
         model (str): The LLM model used to revise the predicted sql query
         num_samples(int): The number of samples to be taken(number of repetition of the process) Default = 1
 
@@ -63,13 +65,14 @@ def revision(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: D
     except Exception as e:
         raise e
 
-    llm = UnifiedLLMInterface()
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence,
                                     MISSING_ENTITIES=missing_entities, SQL=predicted_query, QUERY_RESULT=query_result)
     responses = []
     for _ in range(num_samples):
         response = llm.generate(model, prompt)
+        if response[-1] != '}':
+            response += "}"
         response = json_parser(response)
         responses.append(response)
 

@@ -14,7 +14,8 @@ PROMPT_PATH = os.getenv("PROMPT_ROOT_PATH") + "\\candidate_generation.txt"
 
 
 def candidate_generation(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: Dict[str, Any],
-                         selected_schema: Dict[str, List[str]], model: str, num_samples=1) -> Dict[str, Any]:
+                         selected_schema: Dict[str, List[str]], llm: UnifiedLLMInterface, model: str, num_samples=1) -> \
+        Dict[str, Any]:
     """
     Generates candidate SQL queries based on the task's question and evidence.
 
@@ -23,6 +24,7 @@ def candidate_generation(task: Any, retrieved_entities: Dict[str, Any], retrieve
         retrieved_entities (Dict[str, Any]): The result of the entity retrieval process
         retrieved_context (Dict[str, Any]): The result of the context retrieval process
         selected_schema (Dict[str, List[str]]): The selected database schema.
+        llm(UnifiedLLMInterface): The shared LLM interface instance used for making API calls
         model (str): The LLM model used to generate the candidate sql query
         num_samples(int): The number of samples to be taken(number of repetition of the process) Default = 1
 
@@ -45,7 +47,7 @@ def candidate_generation(task: Any, retrieved_entities: Dict[str, Any], retrieve
         db_path=db_path,
     )
     schema_string = schema_generator.generate_schema_string(include_value_description=True)
-    llm = UnifiedLLMInterface()
+
     prompt_template = load_prompt(PROMPT_PATH)
     prompt = prompt_template.format(DATABASE_SCHEMA=schema_string, QUESTION=task.question, HINT=task.evidence)
 

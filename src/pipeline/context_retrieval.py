@@ -3,11 +3,15 @@ from typing import Dict, Any, List
 from langchain_chroma import Chroma
 from dotenv import load_dotenv
 
+from src.embedding.embedding_interface import UnifiedEmbeddingInterface
+
 load_dotenv()
+
 from src.preprocess.vector_database import EMBEDDING_FUNCTION
 
 
-def context_retrieval(task: Any, keywords: List[str], top_k: int) -> Dict[str, Any]:
+def context_retrieval(task: Any, keywords: List[str], top_k: int) -> Dict[
+    str, Any]:
     """
     Retrieves context information based on the task's question and evidence.
 

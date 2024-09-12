@@ -1,15 +1,18 @@
 EMBEDDING_CONFIGS = {
     "openai_embedding_3_small": {
         "provider": "openai",
-        "model": "text-embedding-3-small"
+        "model": "text-embedding-3-small",
+        "price_per_1k_tokens": 0.00002
     },
     "openai_embedding_3_large": {
         "provider": "openai",
-        "model": "text-embedding-3-large"
+        "model": "text-embedding-3-large",
+        "price_per_1k_tokens": 0.00013
     },
     "openai_embedding_2_ada": {
         "provider": "openai",
-        "model": "text-embedding-ada-002"
+        "model": "text-embedding-ada-002",
+        "price_per_1k_tokens": 0.0001
     },
     "bge_m3": {
         "provider": "huggingface",

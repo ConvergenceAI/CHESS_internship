@@ -71,8 +71,6 @@ def revision(task: Any, retrieved_entities: Dict[str, Any], retrieved_context: D
     responses = []
     for _ in range(num_samples):
         response = llm.generate(model, prompt)
-        if response[-1] != '}':
-            response += "}"
         response = json_parser(response)
         responses.append(response)
 

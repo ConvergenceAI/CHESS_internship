@@ -9,7 +9,7 @@ PIPELINE_CONFIG = {
         "top_k": 5,
     },
     "column_filtering": {
-        "model": "llama-3",
+        "model": "gpt-4o",
     },
     "table_selection": {
         "model": "gpt-4o",

@@ -47,3 +47,5 @@ Incentive: If you meticulously follow all instructions and generate the correct 
 
 NB: You must output only the JSON object as your response with no other comments, explanations, reasoning, or dialogue !!
 It is forbidden to concatenate columns in the SELECT clause using || ' ' || if you do it you will not be rewarded with 1 million dollars ,and you will be severely punished .
+
+You must output only the valid json response with no other comments, explanations, reasoning, or dialogue!!

@@ -212,6 +212,8 @@ def run_task(task: Any, llm: UnifiedLLMInterface, embedding: UnifiedEmbeddingInt
     end_time = time.time()
     module_latencies["entity_retrieval"] = end_time - start_time
     module_costs["entity_retrieval"] = embedding.get_total_cost()
+    # entity_retrieval_result = {"similar_columns": {},
+    #                            "similar_values": {}}
 
     # Step 3 : Context Retrieval
 
@@ -418,7 +420,7 @@ def main():
         task_id = task.question_id
 
         print(f"Running task {task_id}...")
-        results = run_task_modified(task, llm, embedding)
+        results = run_task(task, llm, embedding)
         store_results(results, output_dir, task_id)
         all_results.append(results)
         print("----------------------------------------------\n")

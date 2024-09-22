@@ -1,0 +1,204 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "display name",
+        "parent ID",
+        "child post",
+        "highest score",
+        "parent id",
+        "child post",
+        "MAX(Score)"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "badges": [
+                "Name"
+            ],
+            "posts": [
+                "ParentId",
+                "Score"
+            ]
+        },
+        "similar_values": {}
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "posts": {
+                "parentid": {
+                    "column_name": "ParentId",
+                    "column_description": "the id of the parent post",
+                    "value_description": "If the parent id is null, the post is the root post. Otherwise, the post is the child post of other post."
+                },
+                "ownerdisplayname": {
+                    "column_name": "Owner Display Name",
+                    "column_description": "the display name of the post owner",
+                    "value_description": ""
+                },
+                "score": {
+                    "column_name": "",
+                    "column_description": "the score of the post",
+                    "value_description": ""
+                },
+                "id": {
+                    "column_name": "",
+                    "column_description": "the post id",
+                    "value_description": ""
+                }
+            },
+            "postlinks": {
+                "postid": {
+                    "column_name": "Post Id",
+                    "column_description": "the post id",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "posts": [
+                "Id",
+                "PostTypeId",
+                "AcceptedAnswerId",
+                "CreaionDate",
+                "Score",
+                "ViewCount",
+                "Body",
+                "OwnerUserId",
+                "LasActivityDate",
+                "Title",
+                "Tags",
+                "AnswerCount",
+                "CommentCount",
+                "FavoriteCount",
+                "LastEditorUserId",
+                "LastEditDate",
+                "CommunityOwnedDate",
+                "ParentId",
+                "ClosedDate",
+                "OwnerDisplayName",
+                "LastEditorDisplayName"
+            ],
+            "users": [
+                "Id",
+                "Reputation",
+                "CreationDate",
+                "DisplayName",
+                "LastAccessDate",
+                "WebsiteUrl",
+                "Location",
+                "AboutMe",
+                "Views",
+                "UpVotes",
+                "DownVotes",
+                "AccountId",
+                "Age",
+                "ProfileImageUrl"
+            ],
+            "badges": [
+                "Name",
+                "Id",
+                "UserId"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the child post with the highest score and then find the display name of its parent post. The 'posts' table is essential because it contains information about the posts, including their scores, parent IDs, and owner user IDs. The 'users' table is necessary to retrieve the display name of the parent post's owner. We do not need any other tables because the required information can be obtained by joining these two tables.",
+        "selected_tables": [
+            "posts",
+            "users"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "posts": [
+                "Id",
+                "Score",
+                "ParentId",
+                "OwnerUserId"
+            ],
+            "users": [
+                "Id",
+                "DisplayName"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the child post with the highest score and then find the display name of its parent post. We need the 'Score' column to determine the highest score, the 'ParentId' column to identify child posts, and the 'Id' column to join with the parent post. From the parent post, we need the 'OwnerUserId' to link to the 'users' table and the 'DisplayName' to get the display name of the parent post's owner."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, we need to identify the child post with the highest score. A child post is defined by having a non-null ParentId. We will use ORDER BY Score DESC and LIMIT 1 to find the highest score among child posts. Once we have the child post with the highest score, we need to find the display name of its parent post. This requires joining the posts table with itself to get the parent post's details and then joining with the users table to get the display name of the parent post's owner.",
+        "SQL": "SELECT T3.DisplayName FROM posts T1 JOIN posts T2 ON T1.ParentId = T2.Id JOIN users T3 ON T2.OwnerUserId = T3.Id WHERE T1.ParentId IS NOT NULL AND T1.Score IS NOT NULL ORDER BY T1.Score DESC LIMIT 1;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the display name of the parent ID for the child post with the highest score, I need to join the posts table with itself to link child posts to their parent posts. Then, I join the users table to get the display name of the parent post's owner. I ensure that the parent ID is not null to identify child posts and order by the score in descending order to get the highest score. Finally, I limit the result to 1 to get the top result.",
+        "SQL": "SELECT T3.DisplayName FROM posts T1 JOIN posts T2 ON T1.ParentId = T2.Id JOIN users T3 ON T2.OwnerUserId = T3.Id WHERE T1.ParentId IS NOT NULL AND T1.Score IS NOT NULL ORDER BY T1.Score DESC LIMIT 1;"
+    },
+    "evaluation": {
+        "Question": "Describe the display name of the parent ID for child post with the highest score.",
+        "Evidence": "If the parent id is not null, the post is the child post; the highest score refers to MAX(Score);",
+        "GOLD_SQL": "SELECT DisplayName FROM users WHERE Id = ( SELECT OwnerUserId FROM posts WHERE ParentId IS NOT NULL ORDER BY Score DESC LIMIT 1 )",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T3.DisplayName FROM posts T1 JOIN posts T2 ON T1.ParentId = T2.Id JOIN users T3 ON T2.OwnerUserId = T3.Id WHERE T1.ParentId IS NOT NULL AND T1.Score IS NOT NULL ORDER BY T1.Score DESC LIMIT 1;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T3.DisplayName FROM posts T1 JOIN posts T2 ON T1.ParentId = T2.Id JOIN users T3 ON T2.OwnerUserId = T3.Id WHERE T1.ParentId IS NOT NULL AND T1.Score IS NOT NULL ORDER BY T1.Score DESC LIMIT 1;"
+        }
+    },
+    "latency": 132.54030680656433,
+    "cost": 0.036787150000000005,
+    "module_latencies": {
+        "keyword_extraction": 0.8515036106109619,
+        "entity_retrieval": 77.10063552856445,
+        "context_retrieval": 10.113879442214966,
+        "table_selection": 15.911189317703247,
+        "column_selection": 11.462045192718506,
+        "candidate_generation": 4.192709445953369,
+        "revision": 10.986104249954224,
+        "evaluation": 1.9222400188446045
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00012045,
+        "entity_retrieval": 0.00014169999999999992,
+        "context_retrieval": 0,
+        "table_selection": 0.0092,
+        "column_selection": 0.007595,
+        "candidate_generation": 0.007425,
+        "revision": 0.012305,
+        "evaluation": 0
+    }
+}

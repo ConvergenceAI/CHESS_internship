@@ -1,0 +1,241 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "posts",
+        "created",
+        "Daniel Vassallo",
+        "DisplayName"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "users": [
+                "DisplayName"
+            ]
+        },
+        "similar_values": {
+            "users": {
+                "DisplayName": [
+                    "Daniel Vassallo"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "tags": {
+                "count": {
+                    "column_name": "",
+                    "column_description": "the count of posts that contain this tag",
+                    "value_description": "more counts --> this tag is more popular"
+                }
+            },
+            "posts": {
+                "commentcount": {
+                    "column_name": "Comment Count",
+                    "column_description": "the total number of comments of the post",
+                    "value_description": ""
+                },
+                "creaiondate": {
+                    "column_name": "Creation Date",
+                    "column_description": "the creation date of the post",
+                    "value_description": ""
+                },
+                "answercount": {
+                    "column_name": "Answer Count",
+                    "column_description": "the total number of answers of the post",
+                    "value_description": ""
+                },
+                "ownerdisplayname": {
+                    "column_name": "Owner Display Name",
+                    "column_description": "the display name of the post owner",
+                    "value_description": ""
+                },
+                "lasteditordisplayname": {
+                    "column_name": "Last Editor Display Name",
+                    "column_description": "the display name of the last editor",
+                    "value_description": ""
+                }
+            },
+            "posthistory": {
+                "creationdate": {
+                    "column_name": "Creation Date",
+                    "column_description": "the creation date of the post",
+                    "value_description": ""
+                },
+                "userdisplayname": {
+                    "column_name": "User Display Name",
+                    "column_description": "user's display name",
+                    "value_description": ""
+                }
+            },
+            "users": {
+                "displayname": {
+                    "column_name": "Display Name",
+                    "column_description": "the user's display name",
+                    "value_description": ""
+                }
+            },
+            "comments": {
+                "userdisplayname": {
+                    "column_name": "User Display Name",
+                    "column_description": "user's display name",
+                    "value_description": ""
+                }
+            },
+            "postlinks": {
+                "creationdate": {
+                    "column_name": "Creation Date",
+                    "column_description": "the creation date of the post link",
+                    "value_description": ""
+                }
+            },
+            "votes": {
+                "creationdate": {
+                    "column_name": "Creation Date",
+                    "column_description": "the creation date of the vote",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "users": [
+                "Id",
+                "Reputation",
+                "CreationDate",
+                "DisplayName",
+                "LastAccessDate",
+                "WebsiteUrl",
+                "Location",
+                "AboutMe",
+                "Views",
+                "UpVotes",
+                "DownVotes",
+                "AccountId",
+                "Age",
+                "ProfileImageUrl"
+            ],
+            "posts": [
+                "Id",
+                "PostTypeId",
+                "AcceptedAnswerId",
+                "CreaionDate",
+                "Score",
+                "ViewCount",
+                "Body",
+                "OwnerUserId",
+                "LasActivityDate",
+                "Title",
+                "Tags",
+                "AnswerCount",
+                "CommentCount",
+                "FavoriteCount",
+                "LastEditorUserId",
+                "LastEditDate",
+                "CommunityOwnedDate",
+                "ParentId",
+                "ClosedDate",
+                "OwnerDisplayName",
+                "LastEditorDisplayName"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine how many posts were created by Daniel Vassallo, we need to identify the user with the display name 'Daniel Vassallo' and then count the posts associated with that user. The 'users' table contains the 'DisplayName' column, which we can use to find the user ID of Daniel Vassallo. The 'posts' table contains the 'OwnerUserId' column, which we can use to count the number of posts created by that user. Therefore, we only need the 'users' and 'posts' tables to answer the question.",
+        "selected_tables": [
+            "users",
+            "posts"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "users": [
+                "Id",
+                "DisplayName"
+            ],
+            "posts": [
+                "Id",
+                "OwnerUserId"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine the number of posts created by Daniel Vassallo, we need to identify the user with the DisplayName 'Daniel Vassallo' and then count the posts associated with that user's Id. Therefore, we need the 'DisplayName' column from the 'users' table to filter for 'Daniel Vassallo' and the 'Id' column from the 'users' table to get the user's unique identifier. From the 'posts' table, we need the 'OwnerUserId' column to match the user's Id and the 'Id' column to count the number of posts created by that user."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To determine the number of posts created by Daniel Vassallo, we need to join the 'users' and 'posts' tables on the 'Id' column of 'users' and the 'OwnerUserId' column of 'posts'. We will filter the results to include only those where the 'DisplayName' is 'Daniel Vassallo'. Finally, we will count the number of posts that match this condition.",
+        "SQL": "SELECT COUNT(*) FROM posts T1 JOIN users T2 ON T1.OwnerUserId = T2.Id WHERE T2.DisplayName = 'Daniel Vassallo';"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "The question asks for the number of posts created by a user with the display name 'Daniel Vassallo'. To achieve this, we need to join the 'posts' table with the 'users' table on the 'OwnerUserId' and 'Id' columns respectively. We then filter the results to only include posts where the 'DisplayName' is 'Daniel Vassallo'. Finally, we count the number of posts that meet this condition.",
+        "SQL": "SELECT COUNT(*) FROM posts T1 JOIN users T2 ON T1.OwnerUserId = T2.Id WHERE T2.DisplayName = 'Daniel Vassallo';"
+    },
+    "evaluation": {
+        "Question": "How many posts were created by Daniel Vassallo?",
+        "Evidence": "DisplayName = 'Daniel Vassallo';",
+        "GOLD_SQL": "SELECT COUNT(T1.Id) FROM users AS T1 INNER JOIN postHistory AS T2 ON T1.Id = T2.UserId WHERE T1.DisplayName = 'Daniel Vassallo'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(*) FROM posts T1 JOIN users T2 ON T1.OwnerUserId = T2.Id WHERE T2.DisplayName = 'Daniel Vassallo';"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(*) FROM posts T1 JOIN users T2 ON T1.OwnerUserId = T2.Id WHERE T2.DisplayName = 'Daniel Vassallo';"
+        }
+    },
+    "latency": 136.68425345420837,
+    "cost": 0.03629997000000001,
+    "module_latencies": {
+        "keyword_extraction": 5.167008399963379,
+        "entity_retrieval": 50.106419801712036,
+        "context_retrieval": 4.786386728286743,
+        "table_selection": 18.96393346786499,
+        "column_selection": 5.286984205245972,
+        "candidate_generation": 4.146526098251343,
+        "revision": 30.45057487487793,
+        "evaluation": 17.77641987800598
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00010905,
+        "entity_retrieval": 1.0919999999999995e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.00999,
+        "column_selection": 0.007635000000000001,
+        "candidate_generation": 0.006465,
+        "revision": 0.012090000000000002,
+        "evaluation": 0
+    }
+}

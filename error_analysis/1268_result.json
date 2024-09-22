@@ -1,0 +1,236 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "abnormal anti-SM",
+        "patients",
+        "IDs",
+        "three youngest",
+        "SM NOT IN('-', '+-')",
+        "youngest",
+        "MAX(Birthday)",
+        "Birthday"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "Patient": [
+                "Birthday",
+                "ID"
+            ],
+            "Laboratory": [
+                "SM"
+            ]
+        },
+        "similar_values": {}
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "laboratory": {
+                "sm": {
+                    "column_name": "anti-SM",
+                    "column_description": "anti-SM",
+                    "value_description": "Commonsense evidence:  Normal range: N= -, +-"
+                },
+                "ssb": {
+                    "column_name": "anti-SSB",
+                    "column_description": "anti-SSB",
+                    "value_description": "Commonsense evidence:  Normal range: N= -, +-"
+                },
+                "ssa": {
+                    "column_name": "anti-SSA",
+                    "column_description": "anti-SSA",
+                    "value_description": "Commonsense evidence:  Normal range: N= -, +-"
+                },
+                "id": {
+                    "column_name": "",
+                    "column_description": "identification of the patient",
+                    "value_description": ""
+                },
+                "date": {
+                    "column_name": "",
+                    "column_description": "Date of the laboratory tests (YYMMDD)",
+                    "value_description": ""
+                }
+            },
+            "examination": {
+                "id": {
+                    "column_name": "",
+                    "column_description": "identification of the patient",
+                    "value_description": ""
+                }
+            },
+            "patient": {
+                "id": {
+                    "column_name": "",
+                    "column_description": "identification of the patient",
+                    "value_description": ""
+                },
+                "description": {
+                    "column_name": "",
+                    "column_description": "the first date when a patient data was recorded",
+                    "value_description": "null or empty: not recorded"
+                },
+                "first date": {
+                    "column_name": "",
+                    "column_description": "the date when a patient came to the hospital",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "Laboratory": [
+                "ID",
+                "Date",
+                "GOT",
+                "GPT",
+                "LDH",
+                "ALP",
+                "TP",
+                "ALB",
+                "UA",
+                "UN",
+                "CRE",
+                "T-BIL",
+                "T-CHO",
+                "TG",
+                "CPK",
+                "GLU",
+                "WBC",
+                "RBC",
+                "HGB",
+                "HCT",
+                "PLT",
+                "PT",
+                "APTT",
+                "FG",
+                "PIC",
+                "TAT",
+                "TAT2",
+                "U-PRO",
+                "IGG",
+                "IGA",
+                "IGM",
+                "CRP",
+                "RA",
+                "RF",
+                "C3",
+                "C4",
+                "RNP",
+                "SM",
+                "SC170",
+                "SSA",
+                "SSB",
+                "CENTROMEA",
+                "DNA",
+                "DNA-II"
+            ],
+            "Patient": [
+                "ID",
+                "SEX",
+                "Birthday",
+                "Description",
+                "First Date",
+                "Admission",
+                "Diagnosis"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify patients with an abnormal anti-SM value and then determine their ages to find the three youngest ones. The 'Laboratory' table contains the 'SM' column, which holds the anti-SM values. We need to filter out patients with 'SM' values that are not in ('-', '+-'). The 'Patient' table contains the 'Birthday' column, which we need to determine the ages of the patients. By joining these two tables on the 'ID' column, we can filter the patients based on the abnormal anti-SM values and then sort them by their birthdays to find the youngest ones.",
+        "selected_tables": [
+            "Laboratory",
+            "Patient"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "Laboratory": [
+                "ID",
+                "SM"
+            ],
+            "Patient": [
+                "ID",
+                "Birthday"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify patients with abnormal anti-SM values and then determine their ages to find the three youngest ones. The 'SM' column in the Laboratory table is used to filter out abnormal anti-SM values. The 'ID' column in both tables is necessary to link the Laboratory and Patient tables. The 'Birthday' column in the Patient table is required to determine the age of the patients. Finally, we need to select the 'ID' column from the Patient table to list the IDs of the youngest patients."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, we need to identify patients with an abnormal anti-SM value, which means SM NOT IN ('-', '+-'). Then, we need to join the Laboratory and Patient tables to get the birthdates of these patients. Finally, we sort these patients by their birthdates in descending order to find the youngest ones and select the top three IDs.",
+        "SQL": "SELECT T2.ID FROM Laboratory T1 JOIN Patient T2 ON T1.ID = T2.ID WHERE T1.SM NOT IN ('-', '+-') ORDER BY T2.Birthday DESC LIMIT 3;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "The question asks for the IDs of the three youngest patients with an abnormal anti-SM. Abnormal anti-SM is defined as SM NOT IN ('-', '+-'). The youngest patients are determined by the latest (maximum) Birthday. Therefore, we need to join the Laboratory and Patient tables on the ID column, filter for abnormal anti-SM values, and then order by Birthday in descending order to get the youngest patients. Finally, we limit the results to the top 3.",
+        "SQL": "SELECT T2.ID FROM Laboratory T1 JOIN Patient T2 ON T1.ID = T2.ID WHERE T1.SM NOT IN ('-', '+-') ORDER BY T2.Birthday DESC LIMIT 3;"
+    },
+    "evaluation": {
+        "Question": "For the patients with an abnormal anti-SM, please list the IDs of the three youngest ones.",
+        "Evidence": "abnormal anti-SM refers to SM NOT IN('-', '+-'); youngest refers to MAX(Birthday);",
+        "GOLD_SQL": "SELECT T1.ID FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.SM NOT IN ('negative','0') ORDER BY T1.Birthday DESC LIMIT 3",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T2.ID FROM Laboratory T1 JOIN Patient T2 ON T1.ID = T2.ID WHERE T1.SM NOT IN ('-', '+-') ORDER BY T2.Birthday DESC LIMIT 3;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T2.ID FROM Laboratory T1 JOIN Patient T2 ON T1.ID = T2.ID WHERE T1.SM NOT IN ('-', '+-') ORDER BY T2.Birthday DESC LIMIT 3;"
+        }
+    },
+    "latency": 40.72853636741638,
+    "cost": 0.032231720000000005,
+    "module_latencies": {
+        "keyword_extraction": 0.8642916679382324,
+        "entity_retrieval": 18.709697723388672,
+        "context_retrieval": 9.94542908668518,
+        "table_selection": 3.3668158054351807,
+        "column_selection": 2.3530874252319336,
+        "candidate_generation": 2.433135509490967,
+        "revision": 3.028918743133545,
+        "evaluation": 0.0271604061126709
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00012524999999999998,
+        "entity_retrieval": 4.1470000000000015e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.007925000000000001,
+        "column_selection": 0.0076100000000000004,
+        "candidate_generation": 0.006430000000000001,
+        "revision": 0.010100000000000001,
+        "evaluation": 0
+    }
+}

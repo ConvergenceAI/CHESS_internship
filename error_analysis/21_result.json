@@ -1,0 +1,273 @@
+{
+  "pipeline_config": {
+    "keyword_extraction": {
+      "model": "gpt-4o-mini"
+    },
+    "entity_retrieval": {
+      "embedding_model_name": "openai_embedding_3_large"
+    },
+    "context_retrieval": {
+      "top_k": 5
+    },
+    "column_filtering": {
+      "model": "llama-3"
+    },
+    "table_selection": {
+      "model": "gpt-4o",
+      "num_samples": 1
+    },
+    "column_selection": {
+      "model": "gpt-4o",
+      "num_samples": 1
+    },
+    "schema_selection_fusion": {
+      "model": "gpt-4o",
+      "num_samples": 1
+    },
+    "candidate_generation": {
+      "model": "gpt-4o",
+      "num_samples": 1
+    },
+    "revision": {
+      "model": "gpt-4o",
+      "num_samples": 1
+    }
+  },
+  "keyword_extraction": [
+    "Los Angeles",
+    "schools",
+    "more than 500 free meals",
+    "less than 700 free or reduced price meals",
+    "K-12"
+  ],
+  "entity_retrieval": {
+    "similar_columns": {
+      "schools": [
+        "School"
+      ]
+    },
+    "similar_values": {
+      "schools": {
+        "City": [
+          "Los Angeles"
+        ],
+        "MailCity": [
+          "Los Angeles"
+        ],
+        "County": [
+          "Los Angeles"
+        ],
+        "CharterNum": [
+          "1500"
+        ],
+        "Ext": [
+          "1500"
+        ],
+        "GSoffered": [
+          "K-12"
+        ],
+        "GSserved": [
+          "K-12"
+        ]
+      },
+      "frpm": {
+        "County Name": [
+          "Los Angeles"
+        ],
+        "Charter School Number": [
+          "1500"
+        ]
+      },
+      "satscores": {
+        "cname": [
+          "Los Angeles"
+        ]
+      }
+    }
+  },
+  "context_retrieval": {
+    "schema_with_descriptions": {
+      "frpm": {
+        "frpm count (k-12)": {
+          "column_name": "",
+          "column_description": "Free or Reduced Price Meal Count (K-12)",
+          "value_description": "eligible FRPM rate = FRPM / Enrollment"
+        },
+        "free meal count (k-12)": {
+          "column_name": "",
+          "column_description": "Free Meal Count (K-12)",
+          "value_description": "eligible free rate = Free Meal Count / Enrollment"
+        },
+        "free meal count (ages 5-17)": {
+          "column_name": "",
+          "column_description": "Free Meal Count (Ages 5-17)",
+          "value_description": "eligible free rate = Free Meal Count / Enrollment"
+        },
+        "enrollment (k-12)": {
+          "column_name": "",
+          "column_description": "Enrollment (K-12)",
+          "value_description": "K-12: 1st grade - 12nd grade"
+        },
+        "school type": {
+          "column_name": "",
+          "column_description": "School Type",
+          "value_description": ""
+        },
+        "school name": {
+          "column_name": "",
+          "column_description": "School Name",
+          "value_description": ""
+        }
+      },
+      "satscores": {
+        "cds": {
+          "column_name": "",
+          "column_description": "California Department Schools",
+          "value_description": ""
+        },
+        "sname": {
+          "column_name": "school name",
+          "column_description": "school name",
+          "value_description": ""
+        },
+        "enroll12": {
+          "column_name": "enrollment (1st-12nd grade)",
+          "column_description": "enrollment (1st-12nd grade)",
+          "value_description": ""
+        }
+      },
+      "schools": {
+        "city": {
+          "column_name": "",
+          "column_description": "City",
+          "value_description": ""
+        },
+        "streetabr": {
+          "column_name": "street address",
+          "column_description": "The abbreviated street address of the school, district, or administrative authority\u2019s physical location.",
+          "value_description": "The abbreviated street address of the school, district, or administrative authority\u2019s physical location. Note: Some records (primarily records of closed or retired schools) may not have data in this field."
+        },
+        "mailcity": {
+          "column_name": "mailing city",
+          "column_description": "",
+          "value_description": "The city associated with the mailing address of the school, district, or administrative authority. Note: Many entities have not provided a mailing address city. For your convenience we have filled the unpopulated MailCity cells with City data."
+        },
+        "street": {
+          "column_name": "",
+          "column_description": "Street",
+          "value_description": ""
+        },
+        "school": {
+          "column_name": "",
+          "column_description": "School",
+          "value_description": ""
+        }
+      }
+    }
+  },
+  "column_filtering": "Removed",
+  "table_selection": {
+    "tentative_schema": {
+      "frpm": [
+        "CDSCode",
+        "Academic Year",
+        "County Code",
+        "District Code",
+        "School Code",
+        "County Name",
+        "District Name",
+        "School Name",
+        "District Type",
+        "School Type",
+        "Educational Option Type",
+        "NSLP Provision Status",
+        "Charter School (Y/N)",
+        "Charter School Number",
+        "Charter Funding Type",
+        "IRC",
+        "Low Grade",
+        "High Grade",
+        "Enrollment (K-12)",
+        "Free Meal Count (K-12)",
+        "Percent (%) Eligible Free (K-12)",
+        "FRPM Count (K-12)",
+        "Percent (%) Eligible FRPM (K-12)",
+        "Enrollment (Ages 5-17)",
+        "Free Meal Count (Ages 5-17)",
+        "Percent (%) Eligible Free (Ages 5-17)",
+        "FRPM Count (Ages 5-17)",
+        "Percent (%) Eligible FRPM (Ages 5-17)",
+        "2013-14 CALPADS Fall 1 Certification Status"
+      ],
+      "schools": [
+        "School",
+        "CDSCode"
+      ]
+    },
+    "chain_of_thought_reasoning": "To answer the question, we need to identify schools in Los Angeles with specific criteria related to free meals and free or reduced price meals for K-12. The 'frpm' table contains the necessary columns for 'County Name', 'Free Meal Count (K-12)', and 'FRPM Count (K-12)', which are essential to filter schools based on the given conditions. The 'schools' table is not necessary because the 'frpm' table already includes the 'County Name' and other relevant details. The 'satscores' table is also not needed as it does not provide any information related to free meals or reduced price meals.",
+    "selected_tables": [
+      "frpm"
+    ]
+  },
+  "column_selection": {
+    "selected_schema": {
+      "frpm": [
+        "CDSCode",
+        "County Name",
+        "School Name",
+        "Free Meal Count (K-12)",
+        "FRPM Count (K-12)"
+      ],
+      "schools": [
+        "CDSCode"
+      ]
+    },
+    "chain_of_thought_reasoning": "To answer the question, we need to identify schools in Los Angeles with specific criteria for free meals and free or reduced price meals. The columns selected are essential for filtering and retrieving the required data."
+  },
+  "candidate_generation": {
+    "chain_of_thought_reasoning": "First, I need to filter the records in the 'frpm' table to only include those where the 'County Name' is 'Los Angeles'. Then, I need to apply the conditions for the 'Free Meal Count (K-12)' to be more than 500 and the 'FRPM Count (K-12)' to be less than 700. Finally, I will count the number of schools that meet these criteria.",
+    "SQL": "SELECT COUNT(*) FROM frpm WHERE `County Name` = 'Los Angeles' AND `Free Meal Count (K-12)` > 500 AND `FRPM Count (K-12)` < 700;"
+  },
+  "revision": {
+    "chain_of_thought_reasoning": "To find the number of schools in Los Angeles with more than 500 free meals but less than 700 free or reduced price meals for K-12, I need to join the 'frpm' and 'schools' tables on the 'CDSCode' column. This is because the 'County Name' in the 'frpm' table needs to be matched with the 'County' in the 'schools' table. I will then apply the conditions for the free meal count and the free or reduced price meal count, and count the number of matching records.",
+    "SQL": "SELECT COUNT(*) FROM frpm T1 JOIN schools T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Los Angeles' AND T1.`Free Meal Count (K-12)` > 500 AND T1.`FRPM Count (K-12)` < 700;"
+  },
+  "evaluation": {
+    "Question": "In Los Angeles how many schools have more than 500 free meals but less than 700 free or reduced price meals for K-12?",
+    "Evidence": "",
+    "GOLD_SQL": "SELECT COUNT(CDSCode) FROM frpm WHERE `County Name` = 'Los Angeles' AND `Free Meal Count (K-12)` > 500 AND `Free Meal Count (K-12)` < 700",
+    "candidate_generation": {
+      "exec_res": 0,
+      "exec_err": "incorrect answer",
+      "Predicted SQL": "SELECT COUNT(*) FROM frpm WHERE `County Name` = 'Los Angeles' AND `Free Meal Count (K-12)` > 500 AND `FRPM Count (K-12)` < 700;"
+    },
+    "revision": {
+      "exec_res": 0,
+      "exec_err": "incorrect answer",
+      "Predicted SQL": "SELECT COUNT(*) FROM frpm T1 JOIN schools T2 ON T1.CDSCode = T2.CDSCode WHERE T2.County = 'Los Angeles' AND T1.`Free Meal Count (K-12)` > 500 AND T1.`FRPM Count (K-12)` < 700;"
+    }
+  },
+  "analysis": "incorrect GOLD_SQL because the question says less than 700 free or reduced price meals for K-12 not free meals for k-12 and the correct column for this is `FRPM Count (K-12)` based on columns descriptions",
+  "latency": 70.15802693367004,
+  "cost": 0.03744839999999999,
+  "module_latencies": {
+    "keyword_extraction": 0.7868568897247314,
+    "entity_retrieval": 53.20469331741333,
+    "context_retrieval": 5.020611763000488,
+    "table_selection": 2.8932344913482666,
+    "column_selection": 2.186021089553833,
+    "candidate_generation": 2.703822612762451,
+    "revision": 3.3417863845825195,
+    "evaluation": 0.021000385284423828
+  },
+  "module_costs": {
+    "keyword_extraction": 0.0001194,
+    "entity_retrieval": 3.9000000000000026e-05,
+    "context_retrieval": 0,
+    "table_selection": 0.010275,
+    "column_selection": 0.00685,
+    "candidate_generation": 0.00677,
+    "revision": 0.013395,
+    "evaluation": 0
+  }
+}

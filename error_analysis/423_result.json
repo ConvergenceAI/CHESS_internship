@@ -1,0 +1,213 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "top three",
+        "powerful pairs",
+        "Kingdom Foil",
+        "Kingdom Cards",
+        "Kingdom Foil id",
+        "alphabetical order",
+        "cardKingdomFoilId",
+        "cardKingdomId",
+        "not null"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "cards": [
+                "cardKingdomFoilId",
+                "id",
+                "cardKingdomId"
+            ]
+        },
+        "similar_values": {}
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "cards": {
+                "cardkingdomfoilid": {
+                    "column_name": "card Kingdom Foil Id",
+                    "column_description": "card Kingdom Foil Id",
+                    "value_description": "cardKingdomFoilId, when paired with cardKingdomId that is not Null, is incredibly powerful."
+                },
+                "cardkingdomid": {
+                    "column_name": "card Kingdom Id",
+                    "column_description": "card Kingdom Id",
+                    "value_description": "A list of all the colors in the color indicator"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "cards": [
+                "id",
+                "artist",
+                "asciiName",
+                "availability",
+                "borderColor",
+                "cardKingdomFoilId",
+                "cardKingdomId",
+                "colorIdentity",
+                "colorIndicator",
+                "colors",
+                "convertedManaCost",
+                "duelDeck",
+                "edhrecRank",
+                "faceConvertedManaCost",
+                "faceName",
+                "flavorName",
+                "flavorText",
+                "frameEffects",
+                "frameVersion",
+                "hand",
+                "hasAlternativeDeckLimit",
+                "hasContentWarning",
+                "hasFoil",
+                "hasNonFoil",
+                "isAlternative",
+                "isFullArt",
+                "isOnlineOnly",
+                "isOversized",
+                "isPromo",
+                "isReprint",
+                "isReserved",
+                "isStarter",
+                "isStorySpotlight",
+                "isTextless",
+                "isTimeshifted",
+                "keywords",
+                "layout",
+                "leadershipSkills",
+                "life",
+                "loyalty",
+                "manaCost",
+                "mcmId",
+                "mcmMetaId",
+                "mtgArenaId",
+                "mtgjsonV4Id",
+                "mtgoFoilId",
+                "mtgoId",
+                "multiverseId",
+                "name",
+                "number",
+                "originalReleaseDate",
+                "originalText",
+                "originalType",
+                "otherFaceIds",
+                "power",
+                "printings",
+                "promoTypes",
+                "purchaseUrls",
+                "rarity",
+                "scryfallId",
+                "scryfallIllustrationId",
+                "scryfallOracleId",
+                "setCode",
+                "side",
+                "subtypes",
+                "supertypes",
+                "tcgplayerProductId",
+                "text",
+                "toughness",
+                "type",
+                "types",
+                "uuid",
+                "variations",
+                "watermark"
+            ]
+        },
+        "chain_of_thought_reasoning": "The question asks for the ids of the top three powerful pairs of Kingdom Foil and Kingdom Cards, sorted by Kingdom Foil id in alphabetical order. The hint specifies that 'powerful' refers to records where both cardKingdomFoilId and cardKingdomId are not null. The 'cards' table contains both the cardKingdomFoilId and cardKingdomId columns, which are essential for identifying these powerful pairs. No other tables are needed because the required information is entirely contained within the 'cards' table.",
+        "selected_tables": [
+            "cards"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "cards": [
+                "id",
+                "cardKingdomFoilId",
+                "cardKingdomId"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the top three powerful pairs of Kingdom Foil and Kingdom Cards. The hint specifies that 'powerful' refers to both cardKingdomFoilId and cardKingdomId being not null. Therefore, we need to select these two columns to filter the relevant records. Additionally, we need the id column to identify the cards and sort the results by cardKingdomFoilId in alphabetical order. These three columns are essential for filtering, identifying, and sorting the records as required by the question."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To find the top three powerful pairs of Kingdom Foil and Kingdom Cards, we need to filter the rows where both cardKingdomFoilId and cardKingdomId are not null. Then, we sort these rows by cardKingdomFoilId in alphabetical order and select the top three ids.",
+        "SQL": "SELECT id FROM cards WHERE cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL ORDER BY cardKingdomFoilId ASC LIMIT 3;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "The question asks for the ids of the top three powerful pairs of Kingdom Foil and Kingdom Cards sorted by Kingdom Foil id in alphabetical order. According to the hint, 'powerful' refers to cardKingdomFoilId is not null AND cardKingdomId is not null. Therefore, I need to filter the rows where both cardKingdomFoilId and cardKingdomId are not null, then sort the results by cardKingdomFoilId in ascending order, and finally limit the results to the top three.",
+        "SQL": "SELECT id FROM cards WHERE cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL ORDER BY cardKingdomFoilId ASC LIMIT 3;"
+    },
+    "evaluation": {
+        "Question": "Please provide the ids of top three powerful pairs of Kingdom Foil and Kingdom Cards sorted by Kingdom Foil id in alphabetical order.",
+        "Evidence": "poweful refers to cardKingdomFoilId is not null AND cardKingdomId is not null",
+        "GOLD_SQL": "SELECT cardKingdomFoilId, cardKingdomId FROM cards WHERE cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL ORDER BY cardKingdomFoilId LIMIT 3",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT id FROM cards WHERE cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL ORDER BY cardKingdomFoilId ASC LIMIT 3;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT id FROM cards WHERE cardKingdomFoilId IS NOT NULL AND cardKingdomId IS NOT NULL ORDER BY cardKingdomFoilId ASC LIMIT 3;"
+        }
+    },
+    "latency": 119.13961553573608,
+    "cost": 0.03446565,
+    "module_latencies": {
+        "keyword_extraction": 1.1909563541412354,
+        "entity_retrieval": 94.543452501297,
+        "context_retrieval": 10.221511602401733,
+        "table_selection": 4.951612710952759,
+        "column_selection": 2.888927459716797,
+        "candidate_generation": 1.9150826930999756,
+        "revision": 3.1911964416503906,
+        "evaluation": 0.2368757724761963
+    },
+    "module_costs": {
+        "keyword_extraction": 0.0001338,
+        "entity_retrieval": 9.685000000000013e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.00885,
+        "column_selection": 0.007855,
+        "candidate_generation": 0.0060750000000000005,
+        "revision": 0.011455,
+        "evaluation": 0
+    }
+}

@@ -1,0 +1,190 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "average height",
+        "superheroes",
+        "Marvel Comics",
+        "publisher_name",
+        "AVG(height_cm)"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "publisher": [
+                "publisher_name"
+            ]
+        },
+        "similar_values": {
+            "publisher": {
+                "publisher_name": [
+                    "Marvel Comics"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "superhero": {
+                "height_cm": {
+                    "column_name": "height cm",
+                    "column_description": "the height of the superhero",
+                    "value_description": "The unit of height is centimeter. If the height_cm is NULL or 0, it means the height of the superhero is missing."
+                },
+                "weight_kg": {
+                    "column_name": "weight kg",
+                    "column_description": "the weight of the superhero",
+                    "value_description": "The unit of weight is kilogram. If the weight_kg is NULL or 0, it means the weight of the superhero is missing."
+                },
+                "id": {
+                    "column_name": "",
+                    "column_description": "the unique identifier of the superhero",
+                    "value_description": ""
+                },
+                "full_name": {
+                    "column_name": "full name",
+                    "column_description": "the full name of the superhero",
+                    "value_description": "The full name of a person typically consists of their given name, also known as their first name or personal name, and their surname, also known as their last name or family name. For example, if someone's given name is \"John\" and their surname is \"Smith,\" their full name would be \"John Smith.\""
+                }
+            },
+            "race": {
+                "race": {
+                    "column_name": "",
+                    "column_description": "the race of the superhero",
+                    "value_description": "In the context of superheroes, a superhero's race would refer to the particular group of people that the superhero belongs to base on these physical characteristics"
+                }
+            },
+            "alignment": {
+                "alignment": {
+                    "column_name": "",
+                    "column_description": "the alignment of the superhero",
+                    "value_description": "Alignment refers to a character's moral and ethical stance and can be used to describe the overall attitude or behavior of a superhero. Some common alignments for superheroes include: Good: These superheroes are typically kind, selfless, and dedicated to protecting others and upholding justice. Examples of good alignments include Superman, Wonder Woman, and Spider-Man. Neutral: These superheroes may not always prioritize the greater good, but they are not necessarily evil either. They may act in their own self-interest or make decisions based on their own moral code. Examples of neutral alignments include the Hulk and Deadpool. \u0095\tBad: These superheroes are typically selfish, manipulative, and willing to harm others in pursuit of their own goals. Examples of evil alignments include Lex Luthor and the Joker."
+                }
+            },
+            "hero_attribute": {
+                "hero_id": {
+                    "column_name": "hero id",
+                    "column_description": "the id of the hero Maps to superhero(id)",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "superhero": [
+                "id",
+                "superhero_name",
+                "full_name",
+                "gender_id",
+                "eye_colour_id",
+                "hair_colour_id",
+                "skin_colour_id",
+                "race_id",
+                "publisher_id",
+                "alignment_id",
+                "height_cm",
+                "weight_kg"
+            ],
+            "publisher": [
+                "id",
+                "publisher_name"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine the average height of superheroes from Marvel Comics, we need to identify the superheroes associated with Marvel Comics and then calculate their average height. The 'superhero' table contains the 'height_cm' column, which is necessary for calculating the average height. It also contains the 'publisher_id' column, which links to the 'publisher' table. The 'publisher' table contains the 'publisher_name' column, which we need to filter superheroes from Marvel Comics. Therefore, we need the 'superhero' table to get the height and publisher information, and the 'publisher' table to filter by the publisher name 'Marvel Comics'.",
+        "selected_tables": [
+            "superhero",
+            "publisher"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "superhero": [
+                "publisher_id",
+                "height_cm"
+            ],
+            "publisher": [
+                "id",
+                "publisher_name"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question about the average height of superheroes from Marvel Comics, we need to identify superheroes associated with the publisher 'Marvel Comics' and then calculate the average of their heights. Therefore, we need the 'publisher_name' column to filter for 'Marvel Comics' and the 'height_cm' column to calculate the average height. Additionally, we need the 'publisher_id' column from the 'superhero' table to join with the 'publisher' table."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To find the average height of superheroes from Marvel Comics, we need to join the 'superhero' and 'publisher' tables on the publisher_id. We will filter the results to include only those rows where the publisher_name is 'Marvel Comics'. We will then calculate the average height using the AVG function on the height_cm column, ensuring to exclude null or zero values.",
+        "SQL": "SELECT AVG(T1.height_cm) AS average_height FROM superhero T1 JOIN publisher T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics' AND T1.height_cm IS NOT NULL AND T1.height_cm != 0;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the average height of superheroes from Marvel Comics, I need to join the 'superhero' table with the 'publisher' table on the publisher_id. I will filter the results to include only those superheroes whose publisher_name is 'Marvel Comics'. Additionally, I will ensure that the height_cm column is not null and not equal to 0 before calculating the average height. I will use the AVG function to get the average height.",
+        "SQL": "SELECT AVG(T1.height_cm) AS average_height FROM superhero T1 JOIN publisher T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics' AND T1.height_cm IS NOT NULL AND T1.height_cm != 0;"
+    },
+    "evaluation": {
+        "Question": "What is the average height of the superheroes from Marvel Comics?",
+        "Evidence": "superheroes from Marvel Comics refers to publisher_name = 'Marvel Comics'; average height of the superheroes refers to AVG(height_cm)",
+        "GOLD_SQL": "SELECT AVG(T1.height_cm) FROM superhero AS T1 INNER JOIN publisher AS T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT AVG(T1.height_cm) AS average_height FROM superhero T1 JOIN publisher T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics' AND T1.height_cm IS NOT NULL AND T1.height_cm != 0;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT AVG(T1.height_cm) AS average_height FROM superhero T1 JOIN publisher T2 ON T1.publisher_id = T2.id WHERE T2.publisher_name = 'Marvel Comics' AND T1.height_cm IS NOT NULL AND T1.height_cm != 0;"
+        }
+    },
+    "latency": 41.323105812072754,
+    "cost": 0.0318202,
+    "module_latencies": {
+        "keyword_extraction": 0.7247068881988525,
+        "entity_retrieval": 25.823914766311646,
+        "context_retrieval": 5.964671850204468,
+        "table_selection": 2.497009515762329,
+        "column_selection": 2.1073758602142334,
+        "candidate_generation": 1.9187047481536865,
+        "revision": 2.2700917720794678,
+        "evaluation": 0.01663041114807129
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011504999999999999,
+        "entity_retrieval": 2.014999999999999e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.008395,
+        "column_selection": 0.006065,
+        "candidate_generation": 0.00655,
+        "revision": 0.010675,
+        "evaluation": 0
+    }
+}

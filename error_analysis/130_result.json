@@ -1,0 +1,242 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "account holders",
+        "South Bohemia",
+        "credit cards",
+        "region names",
+        "do not own"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "trans": [
+                "account"
+            ]
+        },
+        "similar_values": {
+            "district": {
+                "A3": [
+                    "south Bohemia"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "trans": {
+                "operation": {
+                    "column_name": "mode of transaction",
+                    "column_description": "mode of transaction",
+                    "value_description": "\"VYBER KARTOU\": credit card withdrawal \"VKLAD\": credit in cash \"PREVOD Z UCTU\" :collection from another bank \"VYBER\": withdrawal in cash \"PREVOD NA UCET\": remittance to another bank"
+                },
+                "k_symbol": {
+                    "column_name": "characterization of the transaction",
+                    "column_description": "",
+                    "value_description": "\"POJISTNE\": stands for insurrance payment \"SLUZBY\": stands for payment for statement \"UROK\": stands for interest credited \"SANKC. UROK\": sanction interest if negative balance \"SIPO\": stands for household \"DUCHOD\": stands for old-age pension \"UVER\": stands for loan payment"
+                },
+                "type": {
+                    "column_name": "+/- transaction",
+                    "column_description": "+/- transaction",
+                    "value_description": "\"PRIJEM\" stands for credit \"VYDAJ\" stands for withdrawal"
+                }
+            },
+            "card": {
+                "type": {
+                    "column_name": "",
+                    "column_description": "type of credit card",
+                    "value_description": "\"junior\": junior class of credit card;  \"classic\": standard class of credit card;  \"gold\": high-level credit card"
+                },
+                "card_id": {
+                    "column_name": "credit card id",
+                    "column_description": "id number of credit card",
+                    "value_description": ""
+                }
+            },
+            "order": {
+                "k_symbol": {
+                    "column_name": "characterization of the payment",
+                    "column_description": "purpose of the payment",
+                    "value_description": "\"POJISTNE\" stands for insurance payment \"SIPO\" stands for household payment \"LEASING\" stands for leasing \"UVER\" stands for loan payment"
+                }
+            },
+            "district": {
+                "a3": {
+                    "column_name": "region",
+                    "column_description": "region",
+                    "value_description": ""
+                },
+                "a5": {
+                    "column_name": "no. of municipalities with inhabitants < 499",
+                    "column_description": "municipality < district < region",
+                    "value_description": ""
+                },
+                "a6": {
+                    "column_name": "no. of municipalities with inhabitants 500-1999",
+                    "column_description": "municipality < district < region",
+                    "value_description": ""
+                },
+                "a8": {
+                    "column_name": "no. of municipalities with inhabitants > 10000",
+                    "column_description": "municipality < district < region",
+                    "value_description": ""
+                },
+                "a7": {
+                    "column_name": "no. of municipalities with inhabitants 2000-9999",
+                    "column_description": "municipality < district < region",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "district": [
+                "district_id",
+                "A2",
+                "A3",
+                "A4",
+                "A5",
+                "A6",
+                "A7",
+                "A8",
+                "A9",
+                "A10",
+                "A11",
+                "A12",
+                "A13",
+                "A14",
+                "A15",
+                "A16"
+            ],
+            "account": [
+                "account_id",
+                "district_id",
+                "frequency",
+                "date"
+            ],
+            "disp": [
+                "disp_id",
+                "client_id",
+                "account_id",
+                "type"
+            ],
+            "card": [
+                "card_id",
+                "disp_id",
+                "type",
+                "issued"
+            ],
+            "trans": [
+                "account",
+                "trans_id",
+                "account_id"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine the number of account holders in South Bohemia who do not own credit cards, we need to follow these steps: First, identify the accounts in the South Bohemia region. The 'district' table contains the region names (A3), and we can join it with the 'account' table using the 'district_id' to filter accounts in South Bohemia. Next, we need to identify the account holders. The 'disp' table links accounts to clients via 'account_id' and 'client_id'. Finally, we need to check if these account holders own credit cards. The 'card' table links to the 'disp' table via 'disp_id'. By checking the absence of entries in the 'card' table for the relevant 'disp_id's, we can determine which account holders do not own credit cards.",
+        "selected_tables": [
+            "district",
+            "account",
+            "disp",
+            "card"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "district": [
+                "district_id",
+                "A3"
+            ],
+            "account": [
+                "account_id",
+                "district_id"
+            ],
+            "disp": [
+                "account_id",
+                "disp_id"
+            ],
+            "card": [
+                "disp_id"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine how many account holders in South Bohemia do not own credit cards, we need to identify accounts in the South Bohemia region and then check if these accounts have associated credit cards. The 'district' table contains the region names, so we need to filter by 'A3' for 'South Bohemia'. The 'account' table links to the 'district' table via 'district_id', so we need 'district_id' and 'account_id' from the 'account' table. The 'disp' table links accounts to clients, so we need 'account_id' from 'disp'. Finally, the 'card' table links to 'disp' via 'disp_id', so we need 'disp_id' from 'card'."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, we need to identify the accounts in the 'South Bohemia' region. We can do this by joining the 'district' and 'account' tables on 'district_id' and filtering for 'South Bohemia' in the 'A3' column. Next, we need to find which of these accounts do not have a corresponding entry in the 'card' table. We can achieve this by performing a LEFT JOIN between the 'disp' and 'card' tables and checking for NULL values in the 'card_id' column. Finally, we count the number of such accounts.",
+        "SQL": "SELECT COUNT(DISTINCT T2.account_id) AS account_count FROM district T1 JOIN account T2 ON T1.district_id = T2.district_id LEFT JOIN disp T3 ON T2.account_id = T3.account_id LEFT JOIN card T4 ON T3.disp_id = T4.disp_id WHERE T1.A3 = 'South Bohemia' AND T4.card_id IS NULL;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To determine the number of account holders in the 'south Bohemia' region who do not own credit cards, I need to join the 'district', 'account', 'disp', and 'card' tables. I will use a LEFT JOIN to ensure that accounts without credit cards are included and then filter for those with NULL card_id values. I will count the distinct account_ids to get the number of unique account holders without credit cards.",
+        "SQL": "SELECT COUNT(DISTINCT T2.account_id) AS account_count FROM district T1 JOIN account T2 ON T1.district_id = T2.district_id LEFT JOIN disp T3 ON T2.account_id = T3.account_id LEFT JOIN card T4 ON T3.disp_id = T4.disp_id WHERE T1.A3 = 'south Bohemia' AND T4.card_id IS NULL;"
+    },
+    "evaluation": {
+        "Question": "How many of the account holders in South Bohemia still do not own credit cards?",
+        "Evidence": "A3 contains the region names; South Bohemia is one of region names.",
+        "GOLD_SQL": "SELECT COUNT(T3.account_id) FROM district AS T1 INNER JOIN client AS T2 ON T1.district_id = T2.district_id INNER JOIN disp AS T3 ON T2.client_id = T3.client_id WHERE T1.A3 = 'south Bohemia' AND T3.type != 'OWNER'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(DISTINCT T2.account_id) AS account_count FROM district T1 JOIN account T2 ON T1.district_id = T2.district_id LEFT JOIN disp T3 ON T2.account_id = T3.account_id LEFT JOIN card T4 ON T3.disp_id = T4.disp_id WHERE T1.A3 = 'South Bohemia' AND T4.card_id IS NULL;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(DISTINCT T2.account_id) AS account_count FROM district T1 JOIN account T2 ON T1.district_id = T2.district_id LEFT JOIN disp T3 ON T2.account_id = T3.account_id LEFT JOIN card T4 ON T3.disp_id = T4.disp_id WHERE T1.A3 = 'south Bohemia' AND T4.card_id IS NULL;"
+        }
+    },
+    "latency": 58.14991044998169,
+    "cost": 0.03825142,
+    "module_latencies": {
+        "keyword_extraction": 3.7294557094573975,
+        "entity_retrieval": 27.302534341812134,
+        "context_retrieval": 7.979825258255005,
+        "table_selection": 5.314126253128052,
+        "column_selection": 3.5020031929016113,
+        "candidate_generation": 3.4951820373535156,
+        "revision": 6.813765525817871,
+        "evaluation": 0.013018131256103516
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011549999999999999,
+        "entity_retrieval": 1.0919999999999997e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.009899999999999999,
+        "column_selection": 0.00813,
+        "candidate_generation": 0.007935000000000001,
+        "revision": 0.01216,
+        "evaluation": 0
+    }
+}

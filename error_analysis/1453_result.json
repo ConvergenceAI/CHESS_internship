@@ -1,0 +1,232 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "events",
+        "average parking cost",
+        "event_name",
+        "less than average",
+        "cost",
+        "DIVIDE(SUM(cost), COUNT(event_id))",
+        "category",
+        "Parking"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "expense": [
+                "cost"
+            ],
+            "event": [
+                "event_name"
+            ],
+            "budget": [
+                "category"
+            ]
+        },
+        "similar_values": {
+            "zip_code": {
+                "city": [
+                    "Cost"
+                ]
+            },
+            "expense": {
+                "expense_description": [
+                    "Parking"
+                ]
+            },
+            "budget": {
+                "category": [
+                    "Parking"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "event": {
+                "event_name": {
+                    "column_name": "event name",
+                    "column_description": "event name",
+                    "value_description": ""
+                },
+                "event_date": {
+                    "column_name": "event date",
+                    "column_description": "The date the event took place or is scheduled to take place",
+                    "value_description": "e.g. 2020-03-10T12:00:00"
+                },
+                "location": {
+                    "column_name": "",
+                    "column_description": "Address where the event was held or is to be held or the name of such a location",
+                    "value_description": ""
+                },
+                "type": {
+                    "column_name": "",
+                    "column_description": "The kind of event, such as game, social, election",
+                    "value_description": ""
+                }
+            },
+            "budget": {
+                "link_to_event": {
+                    "column_name": "link to event",
+                    "column_description": "The unique identifier of the event to which the budget line applies.",
+                    "value_description": "References the Event table"
+                },
+                "amount": {
+                    "column_name": "",
+                    "column_description": "The amount budgeted for the specified category and event",
+                    "value_description": "the unit is dollar   some computation like: amount = spent + remaining"
+                },
+                "spent": {
+                    "column_name": "",
+                    "column_description": "The total amount spent in the budgeted category for an event.",
+                    "value_description": "the unit is dollar. This is summarized from the Expense table"
+                },
+                "category": {
+                    "column_name": "",
+                    "column_description": "The area for which the amount is budgeted, such as, advertisement, food, parking",
+                    "value_description": ""
+                }
+            },
+            "attendance": {
+                "link_to_event": {
+                    "column_name": "link to event",
+                    "column_description": "The unique identifier of the event which was attended",
+                    "value_description": "References the Event table"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "event": [
+                "event_id",
+                "event_name",
+                "event_date",
+                "type",
+                "notes",
+                "location",
+                "status"
+            ],
+            "expense": [
+                "expense_id",
+                "expense_description",
+                "expense_date",
+                "cost",
+                "approved",
+                "link_to_member",
+                "link_to_budget"
+            ],
+            "budget": [
+                "budget_id",
+                "category",
+                "spent",
+                "remaining",
+                "amount",
+                "event_status",
+                "link_to_event"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question of listing the name of events with less than average parking cost, we need to identify the tables that contain information about events and their associated costs. The 'event' table is necessary because it contains the 'event_name' which we need to list. The 'expense' table is necessary because it contains the 'cost' and 'expense_description' which we need to filter by 'Parking' and calculate the average cost. The 'expense' table also has a foreign key 'link_to_budget' which connects to the 'budget' table. The 'budget' table is necessary because it contains the 'link_to_event' which connects the expenses to specific events. Therefore, we need the 'event', 'expense', and 'budget' tables to formulate the SQL query.",
+        "selected_tables": [
+            "event",
+            "expense",
+            "budget"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "event": [
+                "event_id",
+                "event_name"
+            ],
+            "expense": [
+                "cost",
+                "link_to_budget"
+            ],
+            "budget": [
+                "budget_id",
+                "category",
+                "link_to_event"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify events with parking costs less than the average parking cost. This requires us to calculate the average parking cost from the 'expense' table where the category is 'Parking'. We then need to link these expenses to their respective events using the 'budget' table and finally retrieve the event names from the 'event' table."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, I need to calculate the average parking cost. This involves filtering the budget table for the 'Parking' category and then joining it with the expense table to get the costs. After calculating the average cost, I will then find the events where the parking cost is less than this average. Finally, I will join the result with the event table to get the event names.",
+        "SQL": "SELECT T3.event_name FROM event T3 JOIN budget T2 ON T3.event_id = T2.link_to_event JOIN expense T1 ON T2.budget_id = T1.link_to_budget WHERE T2.category = 'Parking' AND T1.cost < (SELECT SUM(T1.cost) / COUNT(T3.event_id) FROM budget T2 JOIN expense T1 ON T2.budget_id = T1.link_to_budget WHERE T2.category = 'Parking')"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the name of events with less than average parking cost, I need to join the event, budget, and expense tables. The average parking cost is calculated by summing the costs where the category is 'Parking' and dividing by the count of such events. I will then filter events where the cost is less than this average. I will ensure to use the correct columns and follow the instructions strictly.",
+        "SQL": "SELECT T3.event_name FROM event T3 JOIN budget T2 ON T3.event_id = T2.link_to_event JOIN expense T1 ON T2.budget_id = T1.link_to_budget WHERE T1.expense_description = 'Parking' AND T1.cost < (SELECT SUM(T1.cost) / COUNT(T3.event_id) FROM budget T2 JOIN expense T1 ON T2.budget_id = T1.link_to_budget WHERE T1.expense_description = 'Parking')"
+    },
+    "evaluation": {
+        "Question": "List the name of events with less than average parking cost.",
+        "Evidence": "name of events refers to event_name; less than average parking cost refers to cost < DIVIDE(SUM(cost), COUNT(event_id)) where category = 'Parking'",
+        "GOLD_SQL": "SELECT T1.event_name FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget WHERE T2.category = 'Parking' AND T3.cost < (SELECT AVG(cost) FROM expense)",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "misuse of aggregate: COUNT()",
+            "Predicted SQL": "SELECT T3.event_name FROM event T3 JOIN budget T2 ON T3.event_id = T2.link_to_event JOIN expense T1 ON T2.budget_id = T1.link_to_budget WHERE T2.category = 'Parking' AND T1.cost < (SELECT SUM(T1.cost) / COUNT(T3.event_id) FROM budget T2 JOIN expense T1 ON T2.budget_id = T1.link_to_budget WHERE T2.category = 'Parking')"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "misuse of aggregate: COUNT()",
+            "Predicted SQL": "SELECT T3.event_name FROM event T3 JOIN budget T2 ON T3.event_id = T2.link_to_event JOIN expense T1 ON T2.budget_id = T1.link_to_budget WHERE T1.expense_description = 'Parking' AND T1.cost < (SELECT SUM(T1.cost) / COUNT(T3.event_id) FROM budget T2 JOIN expense T1 ON T2.budget_id = T1.link_to_budget WHERE T1.expense_description = 'Parking')"
+        }
+    },
+    "latency": 44.02642560005188,
+    "cost": 0.03347792,
+    "module_latencies": {
+        "keyword_extraction": 1.1604106426239014,
+        "entity_retrieval": 24.001218557357788,
+        "context_retrieval": 8.891005039215088,
+        "table_selection": 2.9181556701660156,
+        "column_selection": 1.487316608428955,
+        "candidate_generation": 2.5173685550689697,
+        "revision": 3.0440337657928467,
+        "evaluation": 0.00691676139831543
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00012599999999999997,
+        "entity_retrieval": 3.6920000000000026e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.008365000000000001,
+        "column_selection": 0.0064800000000000005,
+        "candidate_generation": 0.007430000000000001,
+        "revision": 0.011040000000000001,
+        "evaluation": 0
+    }
+}

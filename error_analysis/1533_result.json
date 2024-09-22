@@ -1,0 +1,205 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "people",
+        "paid",
+        "29.00",
+        "per unit",
+        "product id No.5",
+        "consumption status",
+        "August",
+        "2012",
+        "Date",
+        "201208",
+        "Price per unit",
+        "Price",
+        "Amount"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "yearmonth": [
+                "Date",
+                "Consumption"
+            ],
+            "transactions_1k": [
+                "Price",
+                "Amount"
+            ]
+        },
+        "similar_values": {}
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "yearmonth": {
+                "consumption": {
+                    "column_name": "",
+                    "column_description": "consumption",
+                    "value_description": ""
+                },
+                "date": {
+                    "column_name": "",
+                    "column_description": "Date",
+                    "value_description": ""
+                }
+            },
+            "transactions_1k": {
+                "price": {
+                    "column_name": "",
+                    "column_description": "Price",
+                    "value_description": "total price = Amount x Price"
+                },
+                "productid": {
+                    "column_name": "Product ID",
+                    "column_description": "Product ID",
+                    "value_description": ""
+                },
+                "date": {
+                    "column_name": "",
+                    "column_description": "Date",
+                    "value_description": ""
+                },
+                "amount": {
+                    "column_name": "",
+                    "column_description": "Amount",
+                    "value_description": ""
+                }
+            },
+            "products": {
+                "productid": {
+                    "column_name": "Product ID",
+                    "column_description": "Product ID",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "transactions_1k": [
+                "TransactionID",
+                "Date",
+                "Time",
+                "CustomerID",
+                "CardID",
+                "GasStationID",
+                "ProductID",
+                "Amount",
+                "Price"
+            ],
+            "yearmonth": [
+                "CustomerID",
+                "Date",
+                "Consumption"
+            ],
+            "customers": [
+                "CustomerID",
+                "Segment",
+                "Currency"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify customers who paid more than 29.00 per unit for product id No.5 and then check their consumption status in August 2012. First, we need the 'transactions_1k' table to find transactions where the price per unit is greater than 29.00 for product id No.5. This table contains the necessary details such as TransactionID, Date, CustomerID, ProductID, Amount, and Price. Next, we need the 'yearmonth' table to get the consumption status of these customers in August 2012. This table contains CustomerID, Date, and Consumption, and we can filter it to get the records for '201208'. Finally, we need the 'customers' table to ensure we are referencing valid CustomerIDs and to potentially join with the 'yearmonth' table if needed. Therefore, the necessary tables are 'transactions_1k', 'yearmonth', and 'customers'.",
+        "selected_tables": [
+            "transactions_1k",
+            "yearmonth",
+            "customers"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "transactions_1k": [
+                "CustomerID",
+                "ProductID",
+                "Price",
+                "Amount"
+            ],
+            "yearmonth": [
+                "CustomerID",
+                "Date",
+                "Consumption"
+            ],
+            "customers": [
+                "CustomerID"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify customers who paid more than 29.00 per unit for product id No.5 and then check their consumption status in August 2012. We need to filter transactions based on ProductID, calculate the price per unit using Price and Amount, and filter those with a price per unit greater than 29.00. Then, we need to link these transactions to the customers and check their consumption status in the yearmonth table for August 2012."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, I need to identify the customers who paid more than 29.00 per unit for product id No.5. This can be determined by filtering the transactions_1k table where ProductID is 5 and Price/Amount > 29.00. Then, I need to find the consumption status of these customers in August 2012, which corresponds to '201208' in the yearmonth table. I will join the transactions_1k table with the yearmonth table on CustomerID and filter the Date in yearmonth to '201208'. Finally, I will select the CustomerID and Consumption from the yearmonth table.",
+        "SQL": "SELECT T2.CustomerID, T2.Consumption FROM transactions_1k T1 JOIN yearmonth T2 ON T1.CustomerID = T2.CustomerID WHERE T1.ProductID = 5 AND T1.Price / T1.Amount > 29.00 AND T2.Date = '201208';"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the consumption status in August 2012 for customers who paid more than 29.00 per unit of product id No.5, I need to join the transactions_1k and yearmonth tables on CustomerID. I will filter the transactions_1k table for ProductID = 5 and Price/Amount > 29.00. Additionally, I will filter the yearmonth table for Date = '201208'. I will select the CustomerID and Consumption columns from the yearmonth table.",
+        "SQL": "SELECT T2.CustomerID, T2.Consumption FROM transactions_1k T1 JOIN yearmonth T2 ON T1.CustomerID = T2.CustomerID WHERE T1.ProductID = 5 AND T1.Price / T1.Amount > 29.00 AND T2.Date = '201208';"
+    },
+    "evaluation": {
+        "Question": "For all the people who paid more than 29.00 per unit of product id No.5. Give their consumption status in the August of 2012.",
+        "Evidence": "August of 2012 means Date contains '201208' in the yearmonth.date of the database; Price per unit of product = Price / Amount",
+        "GOLD_SQL": "SELECT T2.Consumption FROM transactions_1k AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Price / T1.Amount > 29.00 AND T1.ProductID = 5 AND T2.Date = '201208'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T2.CustomerID, T2.Consumption FROM transactions_1k T1 JOIN yearmonth T2 ON T1.CustomerID = T2.CustomerID WHERE T1.ProductID = 5 AND T1.Price / T1.Amount > 29.00 AND T2.Date = '201208';"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T2.CustomerID, T2.Consumption FROM transactions_1k T1 JOIN yearmonth T2 ON T1.CustomerID = T2.CustomerID WHERE T1.ProductID = 5 AND T1.Price / T1.Amount > 29.00 AND T2.Date = '201208';"
+        }
+    },
+    "latency": 53.937989950180054,
+    "cost": 0.02965466,
+    "module_latencies": {
+        "keyword_extraction": 1.1153936386108398,
+        "entity_retrieval": 26.66441822052002,
+        "context_retrieval": 14.779454946517944,
+        "table_selection": 4.225330591201782,
+        "column_selection": 2.621244192123413,
+        "candidate_generation": 2.213840961456299,
+        "revision": 2.3071749210357666,
+        "evaluation": 0.011132478713989258
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00013724999999999998,
+        "entity_retrieval": 7.241000000000005e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.006805,
+        "column_selection": 0.006055,
+        "candidate_generation": 0.0077800000000000005,
+        "revision": 0.008805,
+        "evaluation": 0
+    }
+}

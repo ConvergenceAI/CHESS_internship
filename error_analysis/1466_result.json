@@ -1,0 +1,192 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "full name",
+        "club member",
+        "Secretary",
+        "college",
+        "first_name",
+        "last name"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "major": [
+                "college"
+            ],
+            "member": [
+                "last_name",
+                "first_name"
+            ]
+        },
+        "similar_values": {
+            "member": {
+                "position": [
+                    "Secretary"
+                ]
+            },
+            "zip_code": {
+                "city": [
+                    "Secretary"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "member": {
+                "position": {
+                    "column_name": "",
+                    "column_description": "The position the member holds in the club",
+                    "value_description": ""
+                },
+                "first_name": {
+                    "column_name": "first name",
+                    "column_description": "member's first name",
+                    "value_description": ""
+                },
+                "last_name": {
+                    "column_name": "last name",
+                    "column_description": "member's last name",
+                    "value_description": "full name is first_name + last_name. e.g. A member's first name is Angela and last name is Sanders. Thus, his/her full name is Angela Sanders."
+                },
+                "email": {
+                    "column_name": "",
+                    "column_description": "member's email",
+                    "value_description": ""
+                },
+                "zip": {
+                    "column_name": "",
+                    "column_description": "the zip code of the member's hometown",
+                    "value_description": ""
+                }
+            },
+            "major": {
+                "college": {
+                    "column_name": "",
+                    "column_description": "The name college that houses the department that offers the major",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "member": [
+                "member_id",
+                "first_name",
+                "last_name",
+                "email",
+                "position",
+                "t_shirt_size",
+                "phone",
+                "zip",
+                "link_to_major"
+            ],
+            "major": [
+                "major_id",
+                "major_name",
+                "department",
+                "college"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the club member with the position of 'Secretary' and determine which college they belong to. The 'member' table contains information about the members, including their first name, last name, position, and a link to their major. Since we need to find members with the position 'Secretary', this table is essential. The 'major' table contains information about the majors, including the college that houses the department offering the major. To find out which college the member belongs to, we need to join the 'member' table with the 'major' table using the 'link_to_major' foreign key in the 'member' table.",
+        "selected_tables": [
+            "member",
+            "major"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "member": [
+                "first_name",
+                "last_name",
+                "position",
+                "link_to_major"
+            ],
+            "major": [
+                "major_id",
+                "college"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the club member with the position of 'Secretary' and determine which college they belong to. The 'member' table contains information about the members, including their first name, last name, and position. The 'major' table contains information about the majors, including the college associated with each major. We need to join these tables using the foreign key 'link_to_major' in the 'member' table, which references 'major_id' in the 'major' table. This will allow us to retrieve the full name of the member and the college they belong to."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To answer the question, we need to find the full name of the club member with the position of 'Secretary' and the college they belong to. We will join the 'member' and 'major' tables on the 'link_to_major' and 'major_id' columns. We will filter the results to only include members with the position 'Secretary'. Finally, we will select the 'first_name', 'last_name', and 'college' columns.",
+        "SQL": "SELECT T1.first_name, T1.last_name, T2.college FROM member T1 JOIN major T2 ON T1.link_to_major = T2.major_id WHERE T1.position = 'Secretary';"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "The initial query incorrectly used the 'Secretary' value from the 'position' column in the 'member' table, but it should have been used from the 'city' column in the 'zip_code' table. Therefore, we need to join the 'member' table with the 'zip_code' table on the 'zip' column and filter by 'city' = 'Secretary'. Then, we join the 'member' table with the 'major' table to get the 'college' information.",
+        "SQL": "SELECT T1.first_name, T1.last_name, T3.college FROM member T1 JOIN zip_code T2 ON T1.zip = T2.zip_code JOIN major T3 ON T1.link_to_major = T3.major_id WHERE T2.city = 'Secretary';"
+    },
+    "evaluation": {
+        "Question": "Write the full name of the club member with the position of 'Secretary' and list which college the club member belongs to.",
+        "Evidence": "full name refers to first_name, last name",
+        "GOLD_SQL": "SELECT T1.first_name, T1.last_name, college FROM member AS T1 INNER JOIN major AS T2 ON T2.major_id = T1.link_to_major WHERE T1.position = 'Secretary'",
+        "candidate_generation": {
+            "exec_res": 1,
+            "exec_err": "--",
+            "Predicted SQL": "SELECT T1.first_name, T1.last_name, T2.college FROM member T1 JOIN major T2 ON T1.link_to_major = T2.major_id WHERE T1.position = 'Secretary';"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.first_name, T1.last_name, T3.college FROM member T1 JOIN zip_code T2 ON T1.zip = T2.zip_code JOIN major T3 ON T1.link_to_major = T3.major_id WHERE T2.city = 'Secretary';"
+        }
+    },
+    "latency": 42.13475203514099,
+    "cost": 0.030300639999999997,
+    "module_latencies": {
+        "keyword_extraction": 0.6836764812469482,
+        "entity_retrieval": 26.13560128211975,
+        "context_retrieval": 6.489811658859253,
+        "table_selection": 2.261152505874634,
+        "column_selection": 2.1473991870880127,
+        "candidate_generation": 1.744474172592163,
+        "revision": 2.6676137447357178,
+        "evaluation": 0.005023002624511719
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011489999999999999,
+        "entity_retrieval": 2.5740000000000028e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.0073149999999999995,
+        "column_selection": 0.00614,
+        "candidate_generation": 0.006895,
+        "revision": 0.00981,
+        "evaluation": 0
+    }
+}

@@ -1,0 +1,210 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "percentage",
+        "cost",
+        "game events",
+        "type = 'Game'",
+        "DIVIDE",
+        "SUM(cost)",
+        "COUNT(event_id)",
+        "100"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "expense": [
+                "cost"
+            ],
+            "event": [
+                "type"
+            ]
+        },
+        "similar_values": {
+            "zip_code": {
+                "city": [
+                    "Cost"
+                ]
+            },
+            "event": {
+                "type": [
+                    "Game"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "budget": {
+                "amount": {
+                    "column_name": "",
+                    "column_description": "The amount budgeted for the specified category and event",
+                    "value_description": "the unit is dollar   some computation like: amount = spent + remaining"
+                },
+                "spent": {
+                    "column_name": "",
+                    "column_description": "The total amount spent in the budgeted category for an event.",
+                    "value_description": "the unit is dollar. This is summarized from the Expense table"
+                },
+                "event_status": {
+                    "column_name": "event status",
+                    "column_description": "the status of the event",
+                    "value_description": "Closed / Open/ Planning    \u2022 Closed: It means that the event is closed. The spent and the remaining won't change anymore. \u2022 Open: It means that the event is already opened. The spent and the remaining will change with new expenses. \u2022 Planning: The event is not started yet but is planning. The spent and the remaining won't change at this stage."
+                },
+                "link_to_event": {
+                    "column_name": "link to event",
+                    "column_description": "The unique identifier of the event to which the budget line applies.",
+                    "value_description": "References the Event table"
+                }
+            },
+            "event": {
+                "type": {
+                    "column_name": "",
+                    "column_description": "The kind of event, such as game, social, election",
+                    "value_description": ""
+                },
+                "event_name": {
+                    "column_name": "event name",
+                    "column_description": "event name",
+                    "value_description": ""
+                }
+            },
+            "attendance": {
+                "link_to_event": {
+                    "column_name": "link to event",
+                    "column_description": "The unique identifier of the event which was attended",
+                    "value_description": "References the Event table"
+                }
+            },
+            "expense": {
+                "expense_id": {
+                    "column_name": "expense id",
+                    "column_description": "unique id of income",
+                    "value_description": ""
+                },
+                "cost": {
+                    "column_name": "",
+                    "column_description": "The dollar amount of the expense",
+                    "value_description": "the unit is dollar"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "event": [
+                "event_id",
+                "event_name",
+                "event_date",
+                "type",
+                "notes",
+                "location",
+                "status"
+            ],
+            "expense": [
+                "expense_id",
+                "expense_description",
+                "expense_date",
+                "cost",
+                "approved",
+                "link_to_member",
+                "link_to_budget"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine the percentage of the cost for game events, we need to identify the total cost of events where the type is 'Game' and then calculate the percentage based on the total number of such events. The 'event' table is necessary to filter events by type 'Game' and to count the number of such events. The 'expense' table is required to sum the costs associated with these events. The 'attendance' table is not needed because it deals with members attending events, which is irrelevant to the cost calculation. Similarly, the 'budget', 'income', 'major', 'member', and 'zip_code' tables are not needed as they do not provide any additional information required for calculating the cost percentage of game events.",
+        "selected_tables": [
+            "event",
+            "expense"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "event": [
+                "event_id",
+                "type"
+            ],
+            "expense": [
+                "cost"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine the percentage of the cost for game events, we need to identify the total cost of expenses related to game events and the total number of game events. The 'event' table contains information about the events, including their type, which allows us to filter for game events. The 'expense' table contains information about the costs associated with these events. We need to join these tables to link expenses to game events and then calculate the required percentage."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To find the percentage of the cost for game events, we need to first filter the events to only include those with type 'Game'. Then, we need to calculate the total cost of these game events and divide it by the count of these game events, and finally multiply by 100 to get the percentage. We will join the event and expense tables to get the necessary data.",
+        "SQL": "SELECT (SUM(T2.cost) / COUNT(T1.event_id)) * 100 AS percentage FROM event T1 JOIN expense T2 ON T1.event_id = T2.expense_id WHERE T1.type = 'Game' AND T2.cost IS NOT NULL;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the percentage of the cost for game events, we need to join the 'event' and 'expense' tables. We will filter for events of type 'Game' and ensure that the cost is not null. We will then calculate the percentage using the formula provided: (SUM(cost) / COUNT(event_id)) * 100. We will use aliases for the tables as instructed.",
+        "SQL": "SELECT (SUM(T2.cost) / COUNT(T1.event_id)) * 100 AS percentage FROM event T1 JOIN expense T2 ON T1.event_id = T2.link_to_budget WHERE T1.type = 'Game' AND T2.cost IS NOT NULL;"
+    },
+    "evaluation": {
+        "Question": "What is the percentage of the cost for the game events?",
+        "Evidence": "game events refers to type = 'Game'; percentage = DIVIDE( SUM(cost), COUNT(event_id)) * 100",
+        "GOLD_SQL": "SELECT SUM(CASE WHEN T1.type = 'Game' THEN T3.cost ELSE 0 END) * 100 / SUM(T3.cost) FROM event AS T1 INNER JOIN budget AS T2 ON T1.event_id = T2.link_to_event INNER JOIN expense AS T3 ON T2.budget_id = T3.link_to_budget",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT (SUM(T2.cost) / COUNT(T1.event_id)) * 100 AS percentage FROM event T1 JOIN expense T2 ON T1.event_id = T2.expense_id WHERE T1.type = 'Game' AND T2.cost IS NOT NULL;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT (SUM(T2.cost) / COUNT(T1.event_id)) * 100 AS percentage FROM event T1 JOIN expense T2 ON T1.event_id = T2.link_to_budget WHERE T1.type = 'Game' AND T2.cost IS NOT NULL;"
+        }
+    },
+    "latency": 48.2196524143219,
+    "cost": 0.02993637,
+    "module_latencies": {
+        "keyword_extraction": 0.8982999324798584,
+        "entity_retrieval": 27.895068883895874,
+        "context_retrieval": 9.926681280136108,
+        "table_selection": 2.589839220046997,
+        "column_selection": 2.098811388015747,
+        "candidate_generation": 2.331448554992676,
+        "revision": 2.4710216522216797,
+        "evaluation": 0.008481502532958984
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00012119999999999999,
+        "entity_retrieval": 4.017000000000004e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.0082,
+        "column_selection": 0.005235,
+        "candidate_generation": 0.0063549999999999995,
+        "revision": 0.009985,
+        "evaluation": 0
+    }
+}

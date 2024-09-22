@@ -1,0 +1,250 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "user",
+        "bounty amount",
+        "50",
+        "post title",
+        "variance",
+        "BountyAmount",
+        "DisplayName"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "votes": [
+                "BountyAmount"
+            ],
+            "posts": [
+                "Title"
+            ],
+            "users": [
+                "DisplayName"
+            ]
+        },
+        "similar_values": {
+            "users": {
+                "DisplayName": [
+                    "user"
+                ]
+            },
+            "tags": {
+                "TagName": [
+                    "variance"
+                ]
+            },
+            "badges": {
+                "Name": [
+                    "variance"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "votes": {
+                "bountyamount": {
+                    "column_name": "Bounty Amount",
+                    "column_description": "the amount of bounty",
+                    "value_description": ""
+                }
+            },
+            "posthistory": {
+                "userid": {
+                    "column_name": "User Id",
+                    "column_description": "the user who post the post",
+                    "value_description": ""
+                },
+                "userdisplayname": {
+                    "column_name": "User Display Name",
+                    "column_description": "user's display name",
+                    "value_description": ""
+                }
+            },
+            "posts": {
+                "title": {
+                    "column_name": "",
+                    "column_description": "the title of the post",
+                    "value_description": ""
+                },
+                "acceptedanswerid": {
+                    "column_name": "Accepted Answer Id",
+                    "column_description": "the accepted answer id of the post",
+                    "value_description": ""
+                },
+                "ownerdisplayname": {
+                    "column_name": "Owner Display Name",
+                    "column_description": "the display name of the post owner",
+                    "value_description": ""
+                }
+            },
+            "users": {
+                "displayname": {
+                    "column_name": "Display Name",
+                    "column_description": "the user's display name",
+                    "value_description": ""
+                }
+            },
+            "comments": {
+                "userdisplayname": {
+                    "column_name": "User Display Name",
+                    "column_description": "user's display name",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "votes": [
+                "Id",
+                "PostId",
+                "VoteTypeId",
+                "CreationDate",
+                "UserId",
+                "BountyAmount"
+            ],
+            "posts": [
+                "Id",
+                "PostTypeId",
+                "AcceptedAnswerId",
+                "CreaionDate",
+                "Score",
+                "ViewCount",
+                "Body",
+                "OwnerUserId",
+                "LasActivityDate",
+                "Title",
+                "Tags",
+                "AnswerCount",
+                "CommentCount",
+                "FavoriteCount",
+                "LastEditorUserId",
+                "LastEditDate",
+                "CommunityOwnedDate",
+                "ParentId",
+                "ClosedDate",
+                "OwnerDisplayName",
+                "LastEditorDisplayName"
+            ],
+            "users": [
+                "Id",
+                "Reputation",
+                "CreationDate",
+                "DisplayName",
+                "LastAccessDate",
+                "WebsiteUrl",
+                "Location",
+                "AboutMe",
+                "Views",
+                "UpVotes",
+                "DownVotes",
+                "AccountId",
+                "Age",
+                "ProfileImageUrl"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the user who added a bounty amount of 50 to a post with a title mentioning 'variance'. The 'votes' table is necessary to find the bounty amount and the user who added it. The 'posts' table is required to find the post with the title mentioning 'variance'. Finally, the 'users' table is needed to get the display name of the user who added the bounty.",
+        "selected_tables": [
+            "votes",
+            "posts",
+            "users"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "votes": [
+                "UserId",
+                "BountyAmount",
+                "PostId"
+            ],
+            "posts": [
+                "Id",
+                "Title"
+            ],
+            "users": [
+                "Id",
+                "DisplayName"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the user who added a bounty amount of 50 to a post with a title mentioning 'variance'. This requires us to link the bounty amount to the user and the post title. Therefore, we need columns that help us filter by bounty amount, identify the user, and match the post title."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, we need to join the 'votes' table with the 'posts' table to get the post title. Then, we join the result with the 'users' table to get the display name of the user who added the bounty. We filter the results to include only those rows where the BountyAmount is 50 and the post title contains the word 'variance'. Finally, we select the DisplayName of the user.",
+        "SQL": "SELECT T3.DisplayName FROM votes T1 JOIN posts T2 ON T1.PostId = T2.Id JOIN users T3 ON T1.UserId = T3.Id WHERE T1.BountyAmount = 50 AND T2.Title LIKE '%variance%'"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "The question asks for the display name of the user who added a bounty amount of 50 to a post with a title mentioning 'variance'. To achieve this, I need to join the votes, posts, and users tables. The condition for the bounty amount is specified as 50, and the title should contain 'variance'. The result should only include the DisplayName of the user.",
+        "SQL": "SELECT T3.DisplayName FROM votes T1 JOIN posts T2 ON T1.PostId = T2.Id JOIN users T3 ON T1.UserId = T3.Id WHERE T1.BountyAmount = 50 AND T2.Title LIKE '%variance%'"
+    },
+    "evaluation": {
+        "Question": "Which user added a bounty amount of 50 to the post title mentioning variance?",
+        "Evidence": "\"bounty amount of 50 refers to BountyAmount = 50; user refers to DisplayName",
+        "GOLD_SQL": "SELECT T3.DisplayName, T1.Title FROM posts AS T1 INNER JOIN votes AS T2 ON T1.Id = T2.PostId INNER JOIN users AS T3 ON T3.Id = T2.UserId WHERE T2.BountyAmount = 50 AND T1.Title LIKE '%variance%'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T3.DisplayName FROM votes T1 JOIN posts T2 ON T1.PostId = T2.Id JOIN users T3 ON T1.UserId = T3.Id WHERE T1.BountyAmount = 50 AND T2.Title LIKE '%variance%'"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T3.DisplayName FROM votes T1 JOIN posts T2 ON T1.PostId = T2.Id JOIN users T3 ON T1.UserId = T3.Id WHERE T1.BountyAmount = 50 AND T2.Title LIKE '%variance%'"
+        }
+    },
+    "latency": 77.58017373085022,
+    "cost": 0.036395849999999993,
+    "module_latencies": {
+        "keyword_extraction": 0.8620190620422363,
+        "entity_retrieval": 37.493393659591675,
+        "context_retrieval": 21.297439098358154,
+        "table_selection": 6.614068031311035,
+        "column_selection": 3.3778579235076904,
+        "candidate_generation": 2.1259000301361084,
+        "revision": 5.745225191116333,
+        "evaluation": 0.0642707347869873
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011835,
+        "entity_retrieval": 3.250000000000003e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.00937,
+        "column_selection": 0.00748,
+        "candidate_generation": 0.007339999999999999,
+        "revision": 0.012055,
+        "evaluation": 0
+    }
+}

@@ -1,0 +1,193 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "molecule",
+        "Sulphur atom",
+        "double bond",
+        "sulphur",
+        "element",
+        "bond_type"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "atom": [
+                "element"
+            ],
+            "bond": [
+                "bond_type"
+            ]
+        },
+        "similar_values": {}
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "bond": {
+                "molecule_id": {
+                    "column_name": "",
+                    "column_description": "identifying the molecule in which the bond appears",
+                    "value_description": ""
+                },
+                "bond_type": {
+                    "column_name": "",
+                    "column_description": "type of the bond",
+                    "value_description": "\u0093-\u0094: single bond '=': double bond '#': triple bond"
+                },
+                "bond_id": {
+                    "column_name": "",
+                    "column_description": "unique id representing bonds",
+                    "value_description": "TRxxx_A1_A2: TRXXX refers to which molecule A1 and A2 refers to which atom"
+                }
+            },
+            "atom": {
+                "molecule_id": {
+                    "column_name": "molecule id",
+                    "column_description": "identifying the molecule to which the atom belongs",
+                    "value_description": "TRXXX_i represents ith atom of molecule TRXXX"
+                }
+            },
+            "molecule": {
+                "molecule_id": {
+                    "column_name": "molecule id",
+                    "column_description": "unique id of molecule",
+                    "value_description": "\"+\" --> this molecule / compound is carcinogenic '-' this molecule is not / compound carcinogenic"
+                }
+            },
+            "connected": {
+                "bond_id": {
+                    "column_name": "bond id",
+                    "column_description": "bond id representing bond between two atoms",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "atom": [
+                "atom_id",
+                "molecule_id",
+                "element"
+            ],
+            "bond": [
+                "bond_id",
+                "molecule_id",
+                "bond_type"
+            ],
+            "connected": [
+                "atom_id",
+                "atom_id2",
+                "bond_id"
+            ],
+            "molecule": [
+                "molecule_id",
+                "label"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine which molecule consists of a Sulphur atom with a double bond, we need to identify the relevant tables and their relationships. The 'atom' table is necessary because it contains information about the elements, including Sulphur ('s'). The 'bond' table is required because it specifies the type of bond, and we are interested in double bonds ('='). The 'connected' table is essential as it links atoms through bonds, allowing us to find which atoms are connected by a double bond. Finally, the 'molecule' table is needed to identify the molecule to which these atoms and bonds belong. By joining these tables, we can trace the relationship from the Sulphur atom through the double bond to the molecule.",
+        "selected_tables": [
+            "atom",
+            "bond",
+            "connected",
+            "molecule"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "atom": [
+                "atom_id",
+                "molecule_id",
+                "element"
+            ],
+            "bond": [
+                "bond_id",
+                "molecule_id",
+                "bond_type"
+            ],
+            "connected": [
+                "atom_id",
+                "atom_id2",
+                "bond_id"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine which molecule consists of a Sulphur atom with a double bond, we need to identify the relevant columns from the tables. The 'element' column in the 'atom' table will help us find the Sulphur atom ('s'). The 'bond_type' column in the 'bond' table will help us identify double bonds ('='). The 'molecule_id' column in both 'atom' and 'bond' tables will help us link the atoms and bonds to their respective molecules. The 'bond_id' column in the 'connected' table will help us link the bonds to the atoms involved in those bonds. Finally, the 'atom_id' and 'atom_id2' columns in the 'connected' table will help us identify the atoms involved in each bond."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To find the molecule that consists of a Sulphur atom with a double bond, we need to join the 'atom', 'bond', and 'connected' tables. First, we filter the 'atom' table to get atoms with element 's'. Then, we join this with the 'connected' table to get the bonds associated with these atoms. Next, we join with the 'bond' table to filter for double bonds ('='). Finally, we select the 'molecule_id' from the 'bond' table to identify the molecule.",
+        "SQL": "SELECT T2.molecule_id FROM atom T1 JOIN connected T2 ON T1.atom_id = T2.atom_id JOIN bond T3 ON T2.bond_id = T3.bond_id WHERE T1.element = 's' AND T3.bond_type = '=';"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the molecule that consists of a Sulphur atom with a double bond, we need to join the 'atom', 'connected', and 'bond' tables. We will filter for atoms with the element 's' and bonds with the bond_type '='. The molecule_id can be found in the 'bond' table. We will use table aliases for clarity and follow the database admin instructions strictly.",
+        "SQL": "SELECT T1.molecule_id FROM atom T1 JOIN connected T2 ON T1.atom_id = T2.atom_id JOIN bond T3 ON T2.bond_id = T3.bond_id WHERE T1.element = 's' AND T3.bond_type = '=';"
+    },
+    "evaluation": {
+        "Question": "Which molecule consisted of Sulphur atom with double bond?",
+        "Evidence": "sulphur refers to element - 's'; double bond refers to bond_type = ' = ';",
+        "GOLD_SQL": "SELECT DISTINCT T1.molecule_id FROM atom AS T1 INNER JOIN bond AS T2 ON T1.molecule_id = T2.molecule_id WHERE T1.element = 's' AND T2.bond_type = '='",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "no such column: T2.molecule_id",
+            "Predicted SQL": "SELECT T2.molecule_id FROM atom T1 JOIN connected T2 ON T1.atom_id = T2.atom_id JOIN bond T3 ON T2.bond_id = T3.bond_id WHERE T1.element = 's' AND T3.bond_type = '=';"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.molecule_id FROM atom T1 JOIN connected T2 ON T1.atom_id = T2.atom_id JOIN bond T3 ON T2.bond_id = T3.bond_id WHERE T1.element = 's' AND T3.bond_type = '=';"
+        }
+    },
+    "latency": 74.55226492881775,
+    "cost": 0.03195694,
+    "module_latencies": {
+        "keyword_extraction": 0.768218994140625,
+        "entity_retrieval": 7.89599609375,
+        "context_retrieval": 49.23262095451355,
+        "table_selection": 3.6184821128845215,
+        "column_selection": 5.431922912597656,
+        "candidate_generation": 3.663675308227539,
+        "revision": 3.8983354568481445,
+        "evaluation": 0.04301309585571289
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011745,
+        "entity_retrieval": 9.489999999999999e-06,
+        "context_retrieval": 0,
+        "table_selection": 0.006834999999999999,
+        "column_selection": 0.00808,
+        "candidate_generation": 0.00821,
+        "revision": 0.008705000000000001,
+        "evaluation": 0
+    }
+}

@@ -1,0 +1,298 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "gpt-4o"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "oldest mythic card",
+        "released",
+        "legal play formats",
+        "originalReleaseDate",
+        "rarity",
+        "mythic",
+        "status",
+        "legal",
+        "play format",
+        "format"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "legalities": [
+                "format",
+                "status"
+            ],
+            "cards": [
+                "originalReleaseDate",
+                "rarity"
+            ]
+        },
+        "similar_values": {
+            "cards": {
+                "promoTypes": [
+                    "release"
+                ],
+                "faceName": [
+                    "Status"
+                ],
+                "name": [
+                    "Rarity"
+                ],
+                "rarity": [
+                    "mythic"
+                ]
+            },
+            "legalities": {
+                "status": [
+                    "Legal"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "cards": {
+                "leadershipskills": {
+                    "column_name": "leadership Skills",
+                    "column_description": "A list of formats the card is legal to be a commander in",
+                    "value_description": ""
+                },
+                "isreserved": {
+                    "column_name": "is Reserved",
+                    "column_description": "If the card is on the Magic: The Gathering Reserved List (opens new window)",
+                    "value_description": "If the card is on the Magic, it will appear in The Gathering Reserved List"
+                },
+                "originalreleasedate": {
+                    "column_name": "",
+                    "column_description": "original Release Date",
+                    "value_description": "The original release date in ISO 8601(opens new window) format for a promotional card printed outside of a cycle window, such as Secret Lair Drop promotions."
+                },
+                "hascontentwarning": {
+                    "column_name": "has Content Warning",
+                    "column_description": "If the card marked by Wizards of the Coast (opens new window) for having sensitive content. See this official article (opens new window) for more information.",
+                    "value_description": "0: doesn't have 1: has sensitve content or Wizards of the Coast  Cards with this property may have missing or degraded properties and values."
+                },
+                "rarity": {
+                    "column_name": "",
+                    "column_description": "The card printing rarity.",
+                    "value_description": ""
+                },
+                "frameeffects": {
+                    "column_name": "frame Effects",
+                    "column_description": "The visual frame effects.",
+                    "value_description": "\"colorshifted\", \"companion\", \"compasslanddfc\", \"devoid\", \"draft\", \"etched\", \"extendedart\", \"fullart\", \"inverted\", \"legendary\", \"lesson\", \"miracle\", \"mooneldrazidfc\", \"nyxtouched\", \"originpwdfc\", \"showcase\", \"snow\", \"sunmoondfc\", \"textless\", \"tombstone\", \"waxingandwaningmoondfc\""
+                },
+                "isstarter": {
+                    "column_name": "is Starter",
+                    "column_description": "If the card is found in a starter deck such as Planeswalker/Brawl decks.",
+                    "value_description": "0: is not 1: is"
+                },
+                "promotypes": {
+                    "column_name": "promo Types",
+                    "column_description": "A list of promotional types for a card.",
+                    "value_description": "\"arenaleague\", \"boosterfun\", \"boxtopper\", \"brawldeck\", \"bundle\", \"buyabox\", \"convention\", \"datestamped\", \"draculaseries\", \"draftweekend\", \"duels\", \"event\", \"fnm\", \"gameday\", \"gateway\", \"giftbox\", \"gilded\", \"godzillaseries\", \"instore\", \"intropack\", \"jpwalker\", \"judgegift\", \"league\", \"mediainsert\", \"neonink\", \"openhouse\", \"planeswalkerstamped\", \"playerrewards\", \"playpromo\", \"premiereshop\", \"prerelease\", \"promopack\", \"release\", \"setpromo\", \"stamped\", \"textured\", \"themepack\", \"thick\", \"tourney\", \"wizardsplaynetwork\""
+                },
+                "istimeshifted": {
+                    "column_name": "is Time shifted",
+                    "column_description": "If the card is time shifted",
+                    "value_description": "If the card is \"timeshifted\", a feature of certain sets where a card will have a different frameVersion."
+                }
+            },
+            "sets": {
+                "type": {
+                    "column_name": "",
+                    "column_description": "The expansion type of the set.",
+                    "value_description": "\"alchemy\", \"archenemy\", \"arsenal\", \"box\", \"commander\", \"core\", \"draft_innovation\", \"duel_deck\", \"expansion\", \"from_the_vault\", \"funny\", \"masterpiece\", \"masters\", \"memorabilia\", \"planechase\", \"premium_deck\", \"promo\", \"spellbook\", \"starter\", \"token\", \"treasure_chest\", \"vanguard\""
+                }
+            },
+            "legalities": {
+                "status": {
+                    "column_name": "",
+                    "column_description": "",
+                    "value_description": "\u2022 legal \u2022 banned \u2022 restricted"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "cards": [
+                "id",
+                "artist",
+                "asciiName",
+                "availability",
+                "borderColor",
+                "cardKingdomFoilId",
+                "cardKingdomId",
+                "colorIdentity",
+                "colorIndicator",
+                "colors",
+                "convertedManaCost",
+                "duelDeck",
+                "edhrecRank",
+                "faceConvertedManaCost",
+                "faceName",
+                "flavorName",
+                "flavorText",
+                "frameEffects",
+                "frameVersion",
+                "hand",
+                "hasAlternativeDeckLimit",
+                "hasContentWarning",
+                "hasFoil",
+                "hasNonFoil",
+                "isAlternative",
+                "isFullArt",
+                "isOnlineOnly",
+                "isOversized",
+                "isPromo",
+                "isReprint",
+                "isReserved",
+                "isStarter",
+                "isStorySpotlight",
+                "isTextless",
+                "isTimeshifted",
+                "keywords",
+                "layout",
+                "leadershipSkills",
+                "life",
+                "loyalty",
+                "manaCost",
+                "mcmId",
+                "mcmMetaId",
+                "mtgArenaId",
+                "mtgjsonV4Id",
+                "mtgoFoilId",
+                "mtgoId",
+                "multiverseId",
+                "name",
+                "number",
+                "originalReleaseDate",
+                "originalText",
+                "originalType",
+                "otherFaceIds",
+                "power",
+                "printings",
+                "promoTypes",
+                "purchaseUrls",
+                "rarity",
+                "scryfallId",
+                "scryfallIllustrationId",
+                "scryfallOracleId",
+                "setCode",
+                "side",
+                "subtypes",
+                "supertypes",
+                "tcgplayerProductId",
+                "text",
+                "toughness",
+                "type",
+                "types",
+                "uuid",
+                "variations",
+                "watermark"
+            ],
+            "legalities": [
+                "id",
+                "format",
+                "status",
+                "uuid"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine the oldest mythic card and its legal play formats, we need to identify the release date and rarity of the cards, as well as their legal formats. The 'cards' table contains the 'originalReleaseDate' and 'rarity' columns, which are essential for finding the oldest mythic card. The 'legalities' table contains the 'status' and 'format' columns, which are necessary to identify the legal play formats of the card. Therefore, we need both the 'cards' and 'legalities' tables to answer the question.",
+        "selected_tables": [
+            "cards",
+            "legalities"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "cards": [
+                "originalReleaseDate",
+                "rarity",
+                "uuid"
+            ],
+            "legalities": [
+                "format",
+                "status",
+                "uuid"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the oldest mythic card and its legal play formats. The columns required are those that help us filter for mythic rarity, determine the release date, and find the legal play formats. Specifically, we need the 'originalReleaseDate' to find the oldest card, 'rarity' to filter for mythic cards, and 'format' and 'status' to identify the legal play formats. The 'uuid' column is necessary to join the 'cards' and 'legalities' tables."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, I need to find the oldest mythic card by filtering the 'cards' table for rarity = 'mythic' and then ordering by originalReleaseDate in ascending order, limiting the result to 1. Next, I need to join this result with the 'legalities' table to find the legal play formats where status is 'Legal'.",
+        "SQL": "SELECT T1.originalReleaseDate, T2.format FROM cards T1 JOIN legalities T2 ON T1.uuid = T2.uuid WHERE T1.rarity = 'mythic' AND T2.status = 'Legal' ORDER BY T1.originalReleaseDate ASC LIMIT 1;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the oldest mythic card and its legal play formats, I need to join the 'cards' and 'legalities' tables. I will filter for cards with rarity 'mythic' and legal status 'Legal'. I will order by the originalReleaseDate in ascending order and limit the result to 1 to get the oldest card. I will select the originalReleaseDate and format as required.",
+        "SQL": "SELECT T1.originalReleaseDate, T2.format FROM cards T1 JOIN legalities T2 ON T1.uuid = T2.uuid WHERE T1.rarity = 'mythic' AND T2.status = 'Legal' ORDER BY T1.originalReleaseDate ASC LIMIT 1;"
+    },
+    "evaluation": {
+        "Question": "When was the oldest mythic card released and what are its legal play formats?",
+        "Evidence": "the oldest card refers to MIN(originalReleaseDate); mythic card refers to rarity = 'mythic'; legal play refers to status = 'legal'; play format refers to format",
+        "GOLD_SQL": "SELECT T1.originalReleaseDate, T2.format FROM cards AS T1 INNER JOIN legalities AS T2 ON T1.uuid = T2.uuid WHERE T1.rarity = 'mythic' AND T1.originalReleaseDate IS NOT NULL AND T2.status = 'Legal' ORDER BY T1.originalReleaseDate LIMIT 1",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.originalReleaseDate, T2.format FROM cards T1 JOIN legalities T2 ON T1.uuid = T2.uuid WHERE T1.rarity = 'mythic' AND T2.status = 'Legal' ORDER BY T1.originalReleaseDate ASC LIMIT 1;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.originalReleaseDate, T2.format FROM cards T1 JOIN legalities T2 ON T1.uuid = T2.uuid WHERE T1.rarity = 'mythic' AND T2.status = 'Legal' ORDER BY T1.originalReleaseDate ASC LIMIT 1;"
+        }
+    },
+    "latency": 177.48102140426636,
+    "cost": 0.04545649,
+    "module_latencies": {
+        "keyword_extraction": 1.496307611465454,
+        "entity_retrieval": 129.63222742080688,
+        "context_retrieval": 23.944666862487793,
+        "table_selection": 7.463958501815796,
+        "column_selection": 4.039231061935425,
+        "candidate_generation": 4.685009002685547,
+        "revision": 4.112887382507324,
+        "evaluation": 2.106733560562134
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00012959999999999998,
+        "entity_retrieval": 7.189000000000009e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.01236,
+        "column_selection": 0.010969999999999999,
+        "candidate_generation": 0.00703,
+        "revision": 0.014895000000000002,
+        "evaluation": 0
+    }
+}

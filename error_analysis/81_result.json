@@ -1,0 +1,243 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "city",
+        "school",
+        "state of California",
+        "lowest latitude coordinates",
+        "lowest grade",
+        "school name",
+        "state = 'CA'"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "schools": [
+                "School",
+                "Latitude",
+                "State",
+                "City"
+            ]
+        },
+        "similar_values": {}
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "satscores": {
+                "cds": {
+                    "column_name": "",
+                    "column_description": "California Department Schools",
+                    "value_description": ""
+                },
+                "sname": {
+                    "column_name": "school name",
+                    "column_description": "school name",
+                    "value_description": ""
+                },
+                "cname": {
+                    "column_name": "county name",
+                    "column_description": "county name",
+                    "value_description": ""
+                }
+            },
+            "frpm": {
+                "school name": {
+                    "column_name": "",
+                    "column_description": "School Name",
+                    "value_description": ""
+                }
+            },
+            "schools": {
+                "latitude": {
+                    "column_name": "",
+                    "column_description": "The angular distance (expressed in degrees) between the location of the school, district, or administrative authority and the equator measured north to south.",
+                    "value_description": "The angular distance (expressed in degrees) between the location of the school, district, or administrative authority and the equator measured north to south."
+                },
+                "mailstate": {
+                    "column_name": "mailing state",
+                    "column_description": "",
+                    "value_description": "The state within the mailing address. For your convenience we have filled the unpopulated MailState cells with State data."
+                },
+                "state": {
+                    "column_name": "",
+                    "column_description": "State",
+                    "value_description": ""
+                },
+                "gsserved": {
+                    "column_name": "grade span served.",
+                    "column_description": "It is the lowest grade and the highest grade of student enrollment as reported in the most recent certified CALPADS Fall 1 data collection. Only K\u201312 enrollment is reported through CALPADS. This field may differ from the grade span offered.",
+                    "value_description": "1.\u00a0\u00a0\u00a0\u00a0 Only K\u201312 enrollment is reported through CALPADS  2.\u00a0\u00a0\u00a0\u00a0 Note: Special programs at independent study, alternative education, and special education schools will often exceed the typical grade span for schools of that type"
+                },
+                "fundingtype": {
+                    "column_name": "",
+                    "column_description": "Indicates the charter school funding type",
+                    "value_description": "Values are as follows:  \u00b7\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 Not in CS (California School) funding model  \u00b7\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 Locally funded  \u00b7\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 Directly funded"
+                },
+                "soc": {
+                    "column_name": "School Ownership Code",
+                    "column_description": "The School Ownership Code is a numeric code used to identify the type of school.",
+                    "value_description": "\u2022      08 - Preschool       \u2022       09 \u2013 Special Education Schools (Public) \u2022      11 \u2013 Youth Authority Facilities (CEA) \u2022       13 \u2013 Opportunity Schools \u2022       14 \u2013 Juvenile Court Schools \u2022       15 \u2013 Other County or District Programs \u2022       31 \u2013 State Special Schools \u2022       60 \u2013 Elementary School (Public) \u2022       61 \u2013 Elementary School in 1 School District (Public) \u2022       62 \u2013 Intermediate/Middle Schools (Public) \u2022       63 \u2013 Alternative Schools of Choice \u2022       64 \u2013 Junior High Schools (Public) \u2022       65 \u2013 K-12 Schools (Public) \u2022       66 \u2013 High Schools (Public) \u2022       67 \u2013 High Schools in 1 School District (Public) \u2022       68 \u2013 Continuation High Schools \u2022       69 \u2013 District Community Day Schools \u2022       70 \u2013 Adult Education Centers \u2022       98 \u2013 Regional Occupational Center/Program (ROC/P)"
+                },
+                "gsoffered": {
+                    "column_name": "grade span offered",
+                    "column_description": "The grade span offered is the lowest grade and the highest grade offered or supported by the school, district, or administrative authority. This field might differ from the grade span served as reported in the most recent certified California Longitudinal Pupil Achievement (CALPADS) Fall 1 data collection.",
+                    "value_description": "For example XYZ School might display the following data:  GSoffered = P\u2013Adult  GSserved = K\u201312"
+                },
+                "edopscode": {
+                    "column_name": "Education Option Code",
+                    "column_description": "The Education Option Code is a short text description of the type of education offered.",
+                    "value_description": "\u2022      ALTSOC \u2013 Alternative School of Choice \u2022      COMM \u2013 County Community School \u2022       COMMDAY \u2013 Community Day School \u2022       CON \u2013 Continuation School \u2022       JUV \u2013 Juvenile Court School \u2022       OPP \u2013 Opportunity School \u2022       YTH \u2013 Youth Authority School \u2022       SSS \u2013 State Special School \u2022       SPEC \u2013 Special Education School \u2022       TRAD \u2013 Traditional \u2022       ROP \u2013 Regional Occupational Program \u2022       HOMHOS \u2013 Home and Hospital \u2022       SPECON \u2013 District Consortia Special Education School"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "schools": [
+                "CDSCode",
+                "NCESDist",
+                "NCESSchool",
+                "StatusType",
+                "County",
+                "District",
+                "School",
+                "Street",
+                "StreetAbr",
+                "City",
+                "Zip",
+                "State",
+                "MailStreet",
+                "MailStrAbr",
+                "MailCity",
+                "MailZip",
+                "MailState",
+                "Phone",
+                "Ext",
+                "Website",
+                "OpenDate",
+                "ClosedDate",
+                "Charter",
+                "CharterNum",
+                "FundingType",
+                "DOC",
+                "DOCType",
+                "SOC",
+                "SOCType",
+                "EdOpsCode",
+                "EdOpsName",
+                "EILCode",
+                "EILName",
+                "GSoffered",
+                "GSserved",
+                "Virtual",
+                "Magnet",
+                "Latitude",
+                "Longitude",
+                "AdmFName1",
+                "AdmLName1",
+                "AdmEmail1",
+                "AdmFName2",
+                "AdmLName2",
+                "AdmEmail2",
+                "AdmFName3",
+                "AdmLName3",
+                "AdmEmail3",
+                "LastUpdate"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to find the school in California with the lowest latitude and provide its city, school name, and lowest grade. The 'schools' table contains the 'State', 'City', 'School', 'Low Grade', and 'Latitude' columns, which are essential for identifying the school with the lowest latitude in California and retrieving the required details. The other tables ('frpm' and 'satscores') do not contain the necessary information for this specific query.",
+        "selected_tables": [
+            "schools"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "schools": [
+                "State",
+                "Latitude",
+                "City",
+                "School",
+                "GSoffered"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the school with the lowest latitude in the state of California and retrieve its city, school name, and lowest grade offered. Therefore, we need columns to filter by state, find the minimum latitude, and retrieve the relevant school details."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To find the city and the lowest grade of the school in California with the lowest latitude, we need to filter the schools by the state 'CA', then order the results by latitude in ascending order to get the school with the lowest latitude. We will then select the city, school name, and the lowest grade offered by this school. The lowest grade can be inferred from the 'GSoffered' column, which contains the grade span offered by the school.",
+        "SQL": "SELECT City, School, GSoffered FROM schools WHERE State = 'CA' AND Latitude IS NOT NULL ORDER BY Latitude ASC LIMIT 1;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "The question asks for the city, school name, and lowest grade of the school in California with the lowest latitude. The database admin instructions specify to use ORDER BY + LIMIT 1 for finding the lowest value and to filter out null values. The relevant columns are City, School, and GSoffered from the schools table. The state of California is indicated by State = 'CA'.",
+        "SQL": "SELECT City, School, `Low Grade` FROM schools WHERE State = 'CA' AND Latitude IS NOT NULL ORDER BY Latitude ASC LIMIT 1;"
+    },
+    "evaluation": {
+        "Question": "In which city can you find the school in the state of California with the lowest latitude coordinates and what is its lowest grade? Indicate the school name.",
+        "Evidence": "State of California refers to state = 'CA'",
+        "GOLD_SQL": "SELECT T2.City, T1.`Low Grade`, T1.`School Name` FROM frpm AS T1 INNER JOIN schools AS T2 ON T1.CDSCode = T2.CDSCode WHERE T2.State = 'CA' ORDER BY T2.Latitude ASC LIMIT 1",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT City, School, GSoffered FROM schools WHERE State = 'CA' AND Latitude IS NOT NULL ORDER BY Latitude ASC LIMIT 1;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "no such column: Low Grade",
+            "Predicted SQL": "SELECT City, School, `Low Grade` FROM schools WHERE State = 'CA' AND Latitude IS NOT NULL ORDER BY Latitude ASC LIMIT 1;"
+        }
+    },
+    "latency": 76.70177125930786,
+    "cost": 0.04241842,
+    "module_latencies": {
+        "keyword_extraction": 0.8187088966369629,
+        "entity_retrieval": 57.514142751693726,
+        "context_retrieval": 7.7172770500183105,
+        "table_selection": 2.132551431655884,
+        "column_selection": 1.9681601524353027,
+        "candidate_generation": 3.4737958908081055,
+        "revision": 3.035953998565674,
+        "evaluation": 0.041181087493896484
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00012119999999999999,
+        "entity_retrieval": 7.72200000000001e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.01179,
+        "column_selection": 0.00945,
+        "candidate_generation": 0.006985,
+        "revision": 0.013995,
+        "evaluation": 0
+    }
+}

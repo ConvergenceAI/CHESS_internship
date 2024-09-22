@@ -1,0 +1,226 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "male customers",
+        "North Bohemia",
+        "average salary",
+        "greater than 8000",
+        "gender = 'M'",
+        "A3",
+        "A11"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "client": [
+                "gender"
+            ],
+            "district": [
+                "A11",
+                "A3"
+            ]
+        },
+        "similar_values": {
+            "district": {
+                "A3": [
+                    "north Bohemia"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "district": {
+                "a8": {
+                    "column_name": "no. of municipalities with inhabitants > 10000",
+                    "column_description": "municipality < district < region",
+                    "value_description": ""
+                },
+                "a4": {
+                    "column_name": "number of inhabitants",
+                    "column_description": "",
+                    "value_description": ""
+                },
+                "a5": {
+                    "column_name": "no. of municipalities with inhabitants < 499",
+                    "column_description": "municipality < district < region",
+                    "value_description": ""
+                },
+                "a7": {
+                    "column_name": "no. of municipalities with inhabitants 2000-9999",
+                    "column_description": "municipality < district < region",
+                    "value_description": ""
+                },
+                "a11": {
+                    "column_name": "average salary",
+                    "column_description": "average salary",
+                    "value_description": ""
+                },
+                "a14": {
+                    "column_name": "no. of entrepreneurs per 1000 inhabitants",
+                    "column_description": "no. of entrepreneurs per 1000 inhabitants",
+                    "value_description": ""
+                }
+            },
+            "trans": {
+                "k_symbol": {
+                    "column_name": "characterization of the transaction",
+                    "column_description": "",
+                    "value_description": "\"POJISTNE\": stands for insurrance payment \"SLUZBY\": stands for payment for statement \"UROK\": stands for interest credited \"SANKC. UROK\": sanction interest if negative balance \"SIPO\": stands for household \"DUCHOD\": stands for old-age pension \"UVER\": stands for loan payment"
+                },
+                "operation": {
+                    "column_name": "mode of transaction",
+                    "column_description": "mode of transaction",
+                    "value_description": "\"VYBER KARTOU\": credit card withdrawal \"VKLAD\": credit in cash \"PREVOD Z UCTU\" :collection from another bank \"VYBER\": withdrawal in cash \"PREVOD NA UCET\": remittance to another bank"
+                }
+            },
+            "order": {
+                "k_symbol": {
+                    "column_name": "characterization of the payment",
+                    "column_description": "purpose of the payment",
+                    "value_description": "\"POJISTNE\" stands for insurance payment \"SIPO\" stands for household payment \"LEASING\" stands for leasing \"UVER\" stands for loan payment"
+                }
+            },
+            "client": {
+                "gender": {
+                    "column_name": "",
+                    "column_description": "",
+                    "value_description": "F\uff1afemale  M\uff1amale"
+                }
+            },
+            "loan": {
+                "status": {
+                    "column_name": "",
+                    "column_description": "repayment status",
+                    "value_description": "'A' stands for contract finished, no problems; 'B' stands for contract finished, loan not paid; 'C' stands for running contract, OK so far; 'D' stands for running contract, client in debt"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "client": [
+                "client_id",
+                "gender",
+                "birth_date",
+                "district_id"
+            ],
+            "district": [
+                "district_id",
+                "A2",
+                "A3",
+                "A4",
+                "A5",
+                "A6",
+                "A7",
+                "A8",
+                "A9",
+                "A10",
+                "A11",
+                "A12",
+                "A13",
+                "A14",
+                "A15",
+                "A16"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify male customers ('M') living in North Bohemia (A3) with an average salary greater than 8000 (A11). The 'client' table contains information about the gender of the customers. The 'district' table contains information about the region (A3) and the average salary (A11). The 'client' table also has a foreign key 'district_id' that links to the 'district' table, allowing us to filter clients based on their district's region and average salary. Therefore, we need the 'client' and 'district' tables to answer the question.",
+        "selected_tables": [
+            "client",
+            "district"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "client": [
+                "client_id",
+                "gender",
+                "district_id"
+            ],
+            "district": [
+                "district_id",
+                "A3",
+                "A11"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify male customers ('M') who live in the 'North Bohemia' region and have an average salary greater than 8000. Therefore, we need to select columns that allow us to filter by gender, region, and average salary. Additionally, we need to join the 'client' and 'district' tables using the 'district_id' foreign key to access the region information."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, we need to join the 'client' and 'district' tables on 'district_id'. Then, we filter the results to include only male clients ('gender' = 'M') who live in 'North Bohemia' ('A3' = 'north Bohemia') and have an average salary greater than 8000 ('A11' > 8000). Finally, we count the number of such clients.",
+        "SQL": "SELECT COUNT(*) FROM client T1 JOIN district T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'M' AND T2.A3 = 'north Bohemia' AND T2.A11 > 8000;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the number of male customers living in North Bohemia with an average salary greater than 8000, I need to join the 'client' and 'district' tables. The 'client' table contains the gender information, and the 'district' table contains the region and average salary information. I will filter the results based on the specified conditions: gender = 'M', region = 'north Bohemia', and average salary > 8000. Finally, I will count the number of matching records.",
+        "SQL": "SELECT COUNT(*) FROM client T1 JOIN district T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'M' AND T2.A3 = 'north Bohemia' AND T2.A11 > 8000;"
+    },
+    "evaluation": {
+        "Question": "How many male customers who are living in North Bohemia have average salary greater than 8000?",
+        "Evidence": "Male means that gender = 'M'; A3 refers to region; A11 pertains to average salary.",
+        "GOLD_SQL": "SELECT COUNT(T1.client_id) FROM client AS T1 INNER JOIN district AS T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'M' AND T2.A3 = 'North Bohemia' AND T2.A11 > 8000",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(*) FROM client T1 JOIN district T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'M' AND T2.A3 = 'north Bohemia' AND T2.A11 > 8000;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(*) FROM client T1 JOIN district T2 ON T1.district_id = T2.district_id WHERE T1.gender = 'M' AND T2.A3 = 'north Bohemia' AND T2.A11 > 8000;"
+        }
+    },
+    "latency": 42.84459567070007,
+    "cost": 0.03389826,
+    "module_latencies": {
+        "keyword_extraction": 1.1261844635009766,
+        "entity_retrieval": 15.123202085494995,
+        "context_retrieval": 8.2642343044281,
+        "table_selection": 5.057553052902222,
+        "column_selection": 4.482104063034058,
+        "candidate_generation": 4.484545469284058,
+        "revision": 4.2976813316345215,
+        "evaluation": 0.009090900421142578
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00012375,
+        "entity_retrieval": 2.951000000000001e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.009255,
+        "column_selection": 0.00608,
+        "candidate_generation": 0.00673,
+        "revision": 0.011680000000000001,
+        "evaluation": 0
+    }
+}

@@ -1,0 +1,246 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "users",
+        "New York",
+        "teacher badge",
+        "supporter badge",
+        "Location",
+        "UserId"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "users": [
+                "Location"
+            ],
+            "badges": [
+                "UserId"
+            ]
+        },
+        "similar_values": {
+            "users": {
+                "DisplayName": [
+                    "user"
+                ],
+                "Location": [
+                    "New York",
+                    "Location"
+                ]
+            },
+            "badges": {
+                "Name": [
+                    "Supporter"
+                ]
+            },
+            "postHistory": {
+                "UserDisplayName": [
+                    "User"
+                ]
+            },
+            "posts": {
+                "OwnerDisplayName": [
+                    "User"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "badges": {
+                "name": {
+                    "column_name": "",
+                    "column_description": "the badge name the user obtained",
+                    "value_description": ""
+                },
+                "id": {
+                    "column_name": "",
+                    "column_description": "the badge id",
+                    "value_description": ""
+                },
+                "date": {
+                    "column_name": "",
+                    "column_description": "the date that the user obtained the badge",
+                    "value_description": ""
+                },
+                "userid": {
+                    "column_name": "User Id",
+                    "column_description": "the unique id of the user",
+                    "value_description": ""
+                }
+            },
+            "users": {
+                "reputation": {
+                    "column_name": "",
+                    "column_description": "the user's reputation",
+                    "value_description": "The user with higher reputation has more influence."
+                },
+                "id": {
+                    "column_name": "",
+                    "column_description": "the user id",
+                    "value_description": ""
+                },
+                "location": {
+                    "column_name": "",
+                    "column_description": "user's location",
+                    "value_description": ""
+                }
+            },
+            "posts": {
+                "owneruserid": {
+                    "column_name": "Owner User Id",
+                    "column_description": "the id of the owner user",
+                    "value_description": ""
+                }
+            },
+            "votes": {
+                "userid": {
+                    "column_name": "User Id",
+                    "column_description": "the id of the voter",
+                    "value_description": ""
+                }
+            },
+            "comments": {
+                "userdisplayname": {
+                    "column_name": "User Display Name",
+                    "column_description": "user's display name",
+                    "value_description": ""
+                },
+                "userid": {
+                    "column_name": "User Id",
+                    "column_description": "the id of the user who post the comment",
+                    "value_description": ""
+                }
+            },
+            "posthistory": {
+                "userid": {
+                    "column_name": "User Id",
+                    "column_description": "the user who post the post",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "users": [
+                "Id",
+                "Reputation",
+                "CreationDate",
+                "DisplayName",
+                "LastAccessDate",
+                "WebsiteUrl",
+                "Location",
+                "AboutMe",
+                "Views",
+                "UpVotes",
+                "DownVotes",
+                "AccountId",
+                "Age",
+                "ProfileImageUrl"
+            ],
+            "badges": [
+                "Id",
+                "UserId",
+                "Name",
+                "Date"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify users from New York who have both the 'Teacher' and 'Supporter' badges. The 'users' table is necessary to filter users based on their location ('New York'). The 'badges' table is required to check if these users have the 'Teacher' and 'Supporter' badges. The 'UserId' in the 'badges' table will be used to join with the 'Id' in the 'users' table to link badges to users.",
+        "selected_tables": [
+            "users",
+            "badges"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "users": [
+                "Id",
+                "Location"
+            ],
+            "badges": [
+                "UserId",
+                "Name"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify users from New York who have both 'Teacher' and 'Supporter' badges. Therefore, we need to filter users based on their location and join this information with the badges they have obtained. The necessary columns are: 'Location' from the 'users' table to filter users from New York, 'Id' from the 'users' table to join with the 'UserId' in the 'badges' table, and 'Name' from the 'badges' table to check for the 'Teacher' and 'Supporter' badges."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, I need to join the 'users' and 'badges' tables on the UserId. Then, I will filter the users who are from 'New York' and have both 'Supporter' and 'Teacher' badges. Finally, I will count the distinct users who meet these criteria.",
+        "SQL": "SELECT COUNT(DISTINCT T1.Id) FROM users T1 JOIN badges T2 ON T1.Id = T2.UserId WHERE T1.Location = 'New York' AND T2.Name IN ('Supporter', 'Teacher') GROUP BY T1.Id HAVING COUNT(DISTINCT T2.Name) = 2;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the number of users from New York who have both 'Supporter' and 'Teacher' badges, I need to join the 'users' and 'badges' tables. I will filter users based on their location being 'New York' and the badge names being 'Supporter' and 'Teacher'. I will use GROUP BY to group by user ID and HAVING to ensure each user has both badges. Finally, I will count the distinct user IDs.",
+        "SQL": "SELECT COUNT(DISTINCT T1.Id) FROM users T1 JOIN badges T2 ON T1.Id = T2.UserId WHERE T1.Location = 'New York' AND T2.Name IN ('Supporter', 'Teacher') GROUP BY T1.Id HAVING COUNT(DISTINCT T2.Name) = 2;"
+    },
+    "evaluation": {
+        "Question": "How many users from New York have a teacher and supporter badge?",
+        "Evidence": "\"Supporter\" and \"Teachers\" are both Name of badge; 'New York' is the Location; user refers to UserId",
+        "GOLD_SQL": "SELECT COUNT(DISTINCT T1.Id) FROM badges AS T1 INNER JOIN users AS T2 ON T1.UserId = T2.Id WHERE T1.Name IN ('Supporter', 'Teacher') AND T2.Location = 'New York'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(DISTINCT T1.Id) FROM users T1 JOIN badges T2 ON T1.Id = T2.UserId WHERE T1.Location = 'New York' AND T2.Name IN ('Supporter', 'Teacher') GROUP BY T1.Id HAVING COUNT(DISTINCT T2.Name) = 2;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(DISTINCT T1.Id) FROM users T1 JOIN badges T2 ON T1.Id = T2.UserId WHERE T1.Location = 'New York' AND T2.Name IN ('Supporter', 'Teacher') GROUP BY T1.Id HAVING COUNT(DISTINCT T2.Name) = 2;"
+        }
+    },
+    "latency": 58.76986575126648,
+    "cost": 0.035610920000000004,
+    "module_latencies": {
+        "keyword_extraction": 0.8430347442626953,
+        "entity_retrieval": 29.917011499404907,
+        "context_retrieval": 9.135542154312134,
+        "table_selection": 6.986787796020508,
+        "column_selection": 3.7670130729675293,
+        "candidate_generation": 2.0469627380371094,
+        "revision": 5.921287536621094,
+        "evaluation": 0.15222620964050293
+    },
+    "module_costs": {
+        "keyword_extraction": 0.0001164,
+        "entity_retrieval": 3.9520000000000035e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.009805000000000001,
+        "column_selection": 0.006365000000000001,
+        "candidate_generation": 0.006495,
+        "revision": 0.01279,
+        "evaluation": 0
+    }
+}

@@ -1,0 +1,254 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "percentage",
+        "Hamilton",
+        "1st track",
+        "f1 circuit",
+        "2010",
+        "COUNT(raceId)",
+        "surname",
+        "year",
+        "position",
+        "DIVIDE"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "drivers": [
+                "surname"
+            ],
+            "races": [
+                "year"
+            ],
+            "driverStandings": [
+                "position"
+            ]
+        },
+        "similar_values": {
+            "drivers": {
+                "surname": [
+                    "Hamilton"
+                ],
+                "driverRef": [
+                    "hamilton"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "results": {
+                "fastestlap": {
+                    "column_name": "fastest lap",
+                    "column_description": "fastest lap number",
+                    "value_description": ""
+                },
+                "fastestlaptime": {
+                    "column_name": "fastest Lap Time",
+                    "column_description": "fastest Lap Time",
+                    "value_description": "faster (smaller in the value) \"fastestLapTime\" leads to higher rank (smaller is higher rank)"
+                },
+                "fastestlapspeed": {
+                    "column_name": "fastest Lap Speed",
+                    "column_description": "fastest Lap Speed",
+                    "value_description": "(km / h)"
+                },
+                "rank": {
+                    "column_name": "",
+                    "column_description": "starting rank positioned by fastest lap speed",
+                    "value_description": ""
+                },
+                "time": {
+                    "column_name": "",
+                    "column_description": "finish time",
+                    "value_description": "1. if the value exists, it means the driver finished the race.  2. Only the time of the champion shows in the format of \"minutes: seconds.millionsecond\", the time of the other drivers shows as \"seconds.millionsecond\" , which means their actual time is the time of the champion adding the value in this cell."
+                },
+                "position": {
+                    "column_name": "",
+                    "column_description": "The finishing position or track of circuits",
+                    "value_description": ""
+                }
+            },
+            "driverstandings": {
+                "driverstandingsid": {
+                    "column_name": "driver Standings Id",
+                    "column_description": "the unique identification number identifying driver standing records",
+                    "value_description": ""
+                },
+                "points": {
+                    "column_name": "",
+                    "column_description": "how many points acquired in each race",
+                    "value_description": ""
+                }
+            },
+            "constructorstandings": {
+                "points": {
+                    "column_name": "",
+                    "column_description": "how many points acquired in each race",
+                    "value_description": ""
+                }
+            },
+            "qualifying": {
+                "q1": {
+                    "column_name": "qualifying 1",
+                    "column_description": "time in qualifying 1",
+                    "value_description": "in minutes / seconds / ...    Q1 lap times determine pole position and the order of the front 10 positions on the grid. The slowest driver in Q1 starts 10th, the next starts ninth and so on.  All 20 F1 drivers participate in the first period, called Q1, with each trying to set the fastest time possible. Those in the top 15 move on to the next period of qualifying, called Q2. The five slowest drivers are eliminated and will start the race in the last five positions on the grid."
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "drivers": [
+                "driverId",
+                "driverRef",
+                "number",
+                "code",
+                "forename",
+                "surname",
+                "dob",
+                "nationality",
+                "url"
+            ],
+            "races": [
+                "raceId",
+                "year",
+                "round",
+                "circuitId",
+                "name",
+                "date",
+                "time",
+                "url"
+            ],
+            "results": [
+                "resultId",
+                "raceId",
+                "driverId",
+                "constructorId",
+                "number",
+                "grid",
+                "position",
+                "positionText",
+                "positionOrder",
+                "points",
+                "laps",
+                "time",
+                "milliseconds",
+                "fastestLap",
+                "rank",
+                "fastestLapTime",
+                "fastestLapSpeed",
+                "statusId"
+            ],
+            "driverStandings": [
+                "position",
+                "driverStandingsId",
+                "raceId",
+                "driverId"
+            ]
+        },
+        "chain_of_thought_reasoning": "To calculate the percentage of races where Hamilton was not in the 1st position since 2010, we need to identify the races he participated in and his finishing positions. The 'drivers' table is necessary to get Hamilton's driverId using his surname. The 'races' table is required to filter races that occurred since 2010. The 'results' table is essential to determine Hamilton's finishing positions in those races. These three tables are sufficient to answer the question as they provide the necessary information about the driver, the races, and the results.",
+        "selected_tables": [
+            "drivers",
+            "races",
+            "results"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "drivers": [
+                "driverId",
+                "surname"
+            ],
+            "races": [
+                "raceId",
+                "year"
+            ],
+            "results": [
+                "raceId",
+                "driverId",
+                "position"
+            ]
+        },
+        "chain_of_thought_reasoning": "To calculate the percentage of races where Hamilton was not in the 1st position since 2010, we need to identify races involving Hamilton, filter them by year, and check his finishing position. The relevant columns are those that help us identify Hamilton, filter by year, and determine his position in the race."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To calculate the percentage of races where Hamilton was not in the 1st position since 2010, we need to follow these steps: 1) Join the drivers, races, and results tables to get the relevant data. 2) Filter the data to include only races since 2010 and where the driver is Hamilton. 3) Count the total number of races Hamilton participated in since 2010. 4) Count the number of races where Hamilton did not finish in the 1st position. 5) Calculate the percentage by dividing the count of races where Hamilton did not finish 1st by the total count of races he participated in since 2010. 6) Ensure the query follows all the given instructions, including using aliases and not concatenating columns.",
+        "SQL": "SELECT 100.0 * (COUNT(CASE WHEN T3.position > 1 THEN 1 END) * 1.0 / COUNT(T3.raceId)) AS percentage FROM drivers T1 JOIN results T3 ON T1.driverId = T3.driverId JOIN races T2 ON T2.raceId = T3.raceId WHERE T1.surname = 'Hamilton' AND T2.year >= 2010;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To calculate the percentage of races where Hamilton was not in the 1st position since 2010, I need to join the 'drivers', 'results', and 'races' tables. I will filter the results to include only those where the driver's surname is 'Hamilton' and the year is 2010 or later. I will then count the total number of races and the number of races where Hamilton's position is greater than 1. Finally, I will calculate the percentage by dividing the count of races where Hamilton's position is greater than 1 by the total count of races and multiplying by 100.",
+        "SQL": "SELECT 100.0 * (COUNT(CASE WHEN T3.position > 1 THEN 1 END) * 1.0 / COUNT(T3.raceId)) AS percentage FROM drivers T1 JOIN results T3 ON T1.driverId = T3.driverId JOIN races T2 ON T2.raceId = T3.raceId WHERE T1.surname = 'Hamilton' AND T2.year >= 2010;"
+    },
+    "evaluation": {
+        "Question": "Calculate the percentage whereby Hamilton was not at the 1st track of the the f1 circuit since 2010.",
+        "Evidence": "DIVIDE(COUNT(raceId) where surname = 'Hamilton', year >= 2010 and position>1), (COUNT(raceId) where surname = 'Hamilton', year >= 2010) as percentage;",
+        "GOLD_SQL": "SELECT CAST(COUNT(CASE WHEN T2.position <> 1 THEN T2.position END) AS REAL) * 100 / COUNT(T2.driverStandingsId) FROM races AS T1 INNER JOIN driverStandings AS T2 ON T2.raceId = T1.raceId INNER JOIN drivers AS T3 ON T3.driverId = T2.driverId WHERE T3.surname = 'Hamilton' AND T1.year >= 2010",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT 100.0 * (COUNT(CASE WHEN T3.position > 1 THEN 1 END) * 1.0 / COUNT(T3.raceId)) AS percentage FROM drivers T1 JOIN results T3 ON T1.driverId = T3.driverId JOIN races T2 ON T2.raceId = T3.raceId WHERE T1.surname = 'Hamilton' AND T2.year >= 2010;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT 100.0 * (COUNT(CASE WHEN T3.position > 1 THEN 1 END) * 1.0 / COUNT(T3.raceId)) AS percentage FROM drivers T1 JOIN results T3 ON T1.driverId = T3.driverId JOIN races T2 ON T2.raceId = T3.raceId WHERE T1.surname = 'Hamilton' AND T2.year >= 2010;"
+        }
+    },
+    "latency": 92.38129830360413,
+    "cost": 0.04281024,
+    "module_latencies": {
+        "keyword_extraction": 1.4510722160339355,
+        "entity_retrieval": 60.56769013404846,
+        "context_retrieval": 11.493030548095703,
+        "table_selection": 3.1743245124816895,
+        "column_selection": 1.9910871982574463,
+        "candidate_generation": 3.06546950340271,
+        "revision": 3.603471040725708,
+        "evaluation": 7.035153150558472
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00013019999999999997,
+        "entity_retrieval": 0.00010504000000000012,
+        "context_retrieval": 0,
+        "table_selection": 0.01142,
+        "column_selection": 0.007455,
+        "candidate_generation": 0.008625,
+        "revision": 0.015075,
+        "evaluation": 0
+    }
+}

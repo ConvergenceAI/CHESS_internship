@@ -1,0 +1,330 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "foreign name",
+        "card",
+        "abzan watermark",
+        "type of card"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "cards": [
+                "name",
+                "type",
+                "watermark"
+            ]
+        },
+        "similar_values": {
+            "cards": {
+                "watermark": [
+                    "abzan"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "foreign_data": {
+                "name": {
+                    "column_name": "",
+                    "column_description": "The foreign name of the card.",
+                    "value_description": ""
+                },
+                "language": {
+                    "column_name": "",
+                    "column_description": "The foreign language of card.",
+                    "value_description": ""
+                },
+                "text": {
+                    "column_name": "",
+                    "column_description": "The foreign text ruling of the card.",
+                    "value_description": ""
+                },
+                "flavortext": {
+                    "column_name": "flavor Text",
+                    "column_description": "The foreign flavor text of the card.",
+                    "value_description": ""
+                },
+                "type": {
+                    "column_name": "",
+                    "column_description": "The foreign type of the card. Includes any supertypes and subtypes.",
+                    "value_description": ""
+                }
+            },
+            "cards": {
+                "name": {
+                    "column_name": "",
+                    "column_description": "The name of the card.",
+                    "value_description": "Cards with multiple faces, like \"Split\" and \"Meld\" cards are given a delimiter."
+                },
+                "flavorname": {
+                    "column_name": "flavor Name",
+                    "column_description": "The promotional card name printed above the true card name on special cards that has no game function.",
+                    "value_description": "The promotional card name printed above the true card name on special cards that has no game function."
+                },
+                "facename": {
+                    "column_name": "face Name",
+                    "column_description": "The name on the face of the card.",
+                    "value_description": ""
+                },
+                "promotypes": {
+                    "column_name": "promo Types",
+                    "column_description": "A list of promotional types for a card.",
+                    "value_description": "\"arenaleague\", \"boosterfun\", \"boxtopper\", \"brawldeck\", \"bundle\", \"buyabox\", \"convention\", \"datestamped\", \"draculaseries\", \"draftweekend\", \"duels\", \"event\", \"fnm\", \"gameday\", \"gateway\", \"giftbox\", \"gilded\", \"godzillaseries\", \"instore\", \"intropack\", \"jpwalker\", \"judgegift\", \"league\", \"mediainsert\", \"neonink\", \"openhouse\", \"planeswalkerstamped\", \"playerrewards\", \"playpromo\", \"premiereshop\", \"prerelease\", \"promopack\", \"release\", \"setpromo\", \"stamped\", \"textured\", \"themepack\", \"thick\", \"tourney\", \"wizardsplaynetwork\""
+                },
+                "isreprint": {
+                    "column_name": "is Reprint",
+                    "column_description": "If the card has been reprinted.",
+                    "value_description": "0: has not 1: has not been"
+                },
+                "otherfaceids": {
+                    "column_name": "",
+                    "column_description": "other Face Ids",
+                    "value_description": "A list of card UUID's to this card's counterparts, such as transformed or melded faces."
+                },
+                "watermark": {
+                    "column_name": "",
+                    "column_description": "The name of the watermark on the card.",
+                    "value_description": ""
+                },
+                "cardkingdomfoilid": {
+                    "column_name": "card Kingdom Foil Id",
+                    "column_description": "card Kingdom Foil Id",
+                    "value_description": "cardKingdomFoilId, when paired with cardKingdomId that is not Null, is incredibly powerful."
+                },
+                "frameeffects": {
+                    "column_name": "frame Effects",
+                    "column_description": "The visual frame effects.",
+                    "value_description": "\"colorshifted\", \"companion\", \"compasslanddfc\", \"devoid\", \"draft\", \"etched\", \"extendedart\", \"fullart\", \"inverted\", \"legendary\", \"lesson\", \"miracle\", \"mooneldrazidfc\", \"nyxtouched\", \"originpwdfc\", \"showcase\", \"snow\", \"sunmoondfc\", \"textless\", \"tombstone\", \"waxingandwaningmoondfc\""
+                },
+                "hasnonfoil": {
+                    "column_name": "has Non Foil",
+                    "column_description": "If the card can be found in non-foil",
+                    "value_description": "0: cannot be found 1: can be found"
+                },
+                "type": {
+                    "column_name": "",
+                    "column_description": "The type of the card as visible, including any supertypes and subtypes.",
+                    "value_description": "\"Artifact\", \"Card\", \"Conspiracy\", \"Creature\", \"Dragon\", \"Dungeon\", \"Eaturecray\", \"Elemental\", \"Elite\", \"Emblem\", \"Enchantment\", \"Ever\", \"Goblin\", \"Hero\", \"Instant\", \"Jaguar\", \"Knights\", \"Land\", \"Phenomenon\", \"Plane\", \"Planeswalker\", \"Scariest\", \"Scheme\", \"See\", \"Sorcery\", \"Sticker\", \"Summon\", \"Token\", \"Tribal\", \"Vanguard\", \"Wolf\", \"You\u2019ll\", \"instant\""
+                },
+                "number": {
+                    "column_name": "",
+                    "column_description": "The number of the card",
+                    "value_description": ""
+                },
+                "layout": {
+                    "column_name": "",
+                    "column_description": "The type of card layout. For a token card, this will be \"token\"",
+                    "value_description": ""
+                },
+                "originaltype": {
+                    "column_name": "",
+                    "column_description": "original Type",
+                    "value_description": "The type of the card as originally printed. Includes any supertypes and subtypes."
+                }
+            },
+            "sets": {
+                "isforeignonly": {
+                    "column_name": "is Foreign Only",
+                    "column_description": "If the set is available only outside the United States of America.",
+                    "value_description": ""
+                }
+            },
+            "rulings": {
+                "date": {
+                    "column_name": "",
+                    "column_description": "date",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "cards": [
+                "id",
+                "artist",
+                "asciiName",
+                "availability",
+                "borderColor",
+                "cardKingdomFoilId",
+                "cardKingdomId",
+                "colorIdentity",
+                "colorIndicator",
+                "colors",
+                "convertedManaCost",
+                "duelDeck",
+                "edhrecRank",
+                "faceConvertedManaCost",
+                "faceName",
+                "flavorName",
+                "flavorText",
+                "frameEffects",
+                "frameVersion",
+                "hand",
+                "hasAlternativeDeckLimit",
+                "hasContentWarning",
+                "hasFoil",
+                "hasNonFoil",
+                "isAlternative",
+                "isFullArt",
+                "isOnlineOnly",
+                "isOversized",
+                "isPromo",
+                "isReprint",
+                "isReserved",
+                "isStarter",
+                "isStorySpotlight",
+                "isTextless",
+                "isTimeshifted",
+                "keywords",
+                "layout",
+                "leadershipSkills",
+                "life",
+                "loyalty",
+                "manaCost",
+                "mcmId",
+                "mcmMetaId",
+                "mtgArenaId",
+                "mtgjsonV4Id",
+                "mtgoFoilId",
+                "mtgoId",
+                "multiverseId",
+                "name",
+                "number",
+                "originalReleaseDate",
+                "originalText",
+                "originalType",
+                "otherFaceIds",
+                "power",
+                "printings",
+                "promoTypes",
+                "purchaseUrls",
+                "rarity",
+                "scryfallId",
+                "scryfallIllustrationId",
+                "scryfallOracleId",
+                "setCode",
+                "side",
+                "subtypes",
+                "supertypes",
+                "tcgplayerProductId",
+                "text",
+                "toughness",
+                "type",
+                "types",
+                "uuid",
+                "variations",
+                "watermark"
+            ],
+            "foreign_data": [
+                "id",
+                "flavorText",
+                "language",
+                "multiverseid",
+                "name",
+                "text",
+                "type",
+                "uuid"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to find the foreign name and type of a card that has an 'abzan' watermark. The 'cards' table contains the 'watermark' column, which we can use to filter cards with the 'abzan' watermark. The 'foreign_data' table contains the 'name' column, which provides the foreign name of the card, and the 'type' column, which provides the type of the card. The 'uuid' column in both tables allows us to join them to get the required information.",
+        "selected_tables": [
+            "cards",
+            "foreign_data"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "cards": [
+                "uuid",
+                "watermark"
+            ],
+            "foreign_data": [
+                "uuid",
+                "name",
+                "type"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the foreign name and type of the card that has an 'abzan' watermark. This requires us to join the 'cards' and 'foreign_data' tables using the 'uuid' column. We need the 'watermark' column from the 'cards' table to filter for the 'abzan' watermark. We also need the 'name' and 'type' columns from the 'foreign_data' table to get the foreign name and type of the card."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To answer the question, we need to find the foreign name and type of the card that has the 'abzan' watermark. The 'watermark' column is in the 'cards' table, and the 'name' and 'type' columns are in the 'foreign_data' table. We need to join these two tables on the 'uuid' column. We will filter the results to only include cards with the 'abzan' watermark and then select the 'name' and 'type' columns from the 'foreign_data' table.",
+        "SQL": "SELECT T2.name, T2.type FROM cards T1 JOIN foreign_data T2 ON T1.uuid = T2.uuid WHERE T1.watermark = 'abzan';"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the foreign name and type of the card that has an 'abzan' watermark, I need to join the 'cards' table with the 'foreign_data' table using the 'uuid' column. I will then filter the results to only include rows where the 'watermark' column in the 'cards' table is 'abzan'. Finally, I will select the 'name' and 'type' columns from the 'foreign_data' table.",
+        "SQL": "SELECT T2.name, T2.type FROM cards T1 JOIN foreign_data T2 ON T1.uuid = T2.uuid WHERE T1.watermark = 'abzan';"
+    },
+    "evaluation": {
+        "Question": "Name the foreign name of the card that has abzan watermark? List out the type of this card.",
+        "Evidence": "",
+        "GOLD_SQL": "SELECT DISTINCT T1.name, T1.type FROM cards AS T1 INNER JOIN foreign_data AS T2 ON T2.uuid = T1.uuid WHERE T1.watermark = 'abzan'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T2.name, T2.type FROM cards T1 JOIN foreign_data T2 ON T1.uuid = T2.uuid WHERE T1.watermark = 'abzan';"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T2.name, T2.type FROM cards T1 JOIN foreign_data T2 ON T1.uuid = T2.uuid WHERE T1.watermark = 'abzan';"
+        }
+    },
+    "latency": 176.71350169181824,
+    "cost": 0.04843551,
+    "module_latencies": {
+        "keyword_extraction": 0.7244136333465576,
+        "entity_retrieval": 152.5415027141571,
+        "context_retrieval": 4.422728776931763,
+        "table_selection": 5.898325681686401,
+        "column_selection": 3.000155210494995,
+        "candidate_generation": 3.7732739448547363,
+        "revision": 3.5731329917907715,
+        "evaluation": 2.779968738555908
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00010995,
+        "entity_retrieval": 4.0560000000000025e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.012675,
+        "column_selection": 0.011685,
+        "candidate_generation": 0.0066749999999999995,
+        "revision": 0.017249999999999998,
+        "evaluation": 0
+    }
+}

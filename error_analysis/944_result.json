@@ -1,0 +1,233 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "faster",
+        "percentage",
+        "champion",
+        "driver",
+        "finished the race",
+        "2008 Australian Grand Prix",
+        "incremental time",
+        "champion time",
+        "last_driver time",
+        "last driver finished time",
+        "divide",
+        "subtract",
+        "HH:MM:SS.mmm",
+        "finished the game",
+        "time is not null"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "lapTimes": [
+                "time"
+            ]
+        },
+        "similar_values": {
+            "drivers": {
+                "driverRef": [
+                    "driver"
+                ],
+                "surname": [
+                    "Driver"
+                ]
+            },
+            "races": {
+                "name": [
+                    "Australian Grand Prix"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "results": {
+                "time": {
+                    "column_name": "",
+                    "column_description": "finish time",
+                    "value_description": "1. if the value exists, it means the driver finished the race.  2. Only the time of the champion shows in the format of \"minutes: seconds.millionsecond\", the time of the other drivers shows as \"seconds.millionsecond\" , which means their actual time is the time of the champion adding the value in this cell."
+                },
+                "rank": {
+                    "column_name": "",
+                    "column_description": "starting rank positioned by fastest lap speed",
+                    "value_description": ""
+                },
+                "fastestlap": {
+                    "column_name": "fastest lap",
+                    "column_description": "fastest lap number",
+                    "value_description": ""
+                },
+                "fastestlaptime": {
+                    "column_name": "fastest Lap Time",
+                    "column_description": "fastest Lap Time",
+                    "value_description": "faster (smaller in the value) \"fastestLapTime\" leads to higher rank (smaller is higher rank)"
+                },
+                "milliseconds": {
+                    "column_name": "",
+                    "column_description": "the actual finishing time of drivers in milliseconds",
+                    "value_description": "the actual finishing time of drivers"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "races": [
+                "raceId",
+                "year",
+                "round",
+                "circuitId",
+                "name",
+                "date",
+                "time",
+                "url"
+            ],
+            "results": [
+                "resultId",
+                "raceId",
+                "driverId",
+                "constructorId",
+                "number",
+                "grid",
+                "position",
+                "positionText",
+                "positionOrder",
+                "points",
+                "laps",
+                "time",
+                "milliseconds",
+                "fastestLap",
+                "rank",
+                "fastestLapTime",
+                "fastestLapSpeed",
+                "statusId"
+            ],
+            "drivers": [
+                "driverId",
+                "driverRef",
+                "number",
+                "code",
+                "forename",
+                "surname",
+                "dob",
+                "nationality",
+                "url"
+            ],
+            "status": [
+                "statusId",
+                "status"
+            ],
+            "lapTimes": [
+                "time",
+                "raceId",
+                "driverId",
+                "lap"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine how much faster the champion is than the last driver in the 2008 Australian Grand Prix, we need to identify the race, the drivers who finished the race, and their respective times. The 'races' table is necessary to find the raceId for the 2008 Australian Grand Prix. The 'results' table is essential to get the finishing times of the drivers who participated in that race, as it contains the time and milliseconds columns. The 'drivers' table is needed to identify the drivers by their driverId. Finally, the 'status' table is required to ensure that we only consider drivers who finished the race, as indicated by the statusId.",
+        "selected_tables": [
+            "races",
+            "results",
+            "drivers",
+            "status"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "races": [
+                "raceId",
+                "year",
+                "name"
+            ],
+            "results": [
+                "raceId",
+                "driverId",
+                "positionOrder",
+                "time"
+            ],
+            "drivers": [
+                "driverId"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine how much faster in percentage the champion is compared to the last driver in the 2008 Australian Grand Prix, we need to identify the race, the drivers' finishing times, and their positions. The 'races' table will help us filter the specific race by name and year. The 'results' table will provide the finishing times and positions of the drivers in that race. The 'drivers' table will help us identify the drivers by their IDs. The 'time' column in the 'results' table is crucial to determine the finishing times of the champion and the last driver."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To determine how much faster the champion is compared to the last driver in the 2008 Australian Grand Prix, we need to follow these steps: 1. Identify the raceId for the 2008 Australian Grand Prix. 2. Retrieve the champion's finish time and the last driver's incremental time for that race. 3. Calculate the champion's time in seconds. 4. Calculate the last driver's total time by adding the champion's time and the last driver's incremental time. 5. Compute the percentage difference. We will use table aliases and ensure we only select the required columns.",
+        "SQL": "SELECT ((CAST(SUBSTR(T2.time, 1, INSTR(T2.time, ':') - 1) AS INTEGER) * 60 + CAST(SUBSTR(T2.time, INSTR(T2.time, ':') + 1) AS REAL)) / (CAST(SUBSTR(T2.time, 1, INSTR(T2.time, ':') - 1) AS INTEGER) * 60 + CAST(SUBSTR(T2.time, INSTR(T2.time, ':') + 1) AS REAL) + CAST(T3.time AS REAL)) * 100) AS percentage_faster FROM races T1 JOIN results T2 ON T1.raceId = T2.raceId JOIN results T3 ON T1.raceId = T3.raceId WHERE T1.year = 2008 AND T1.name = 'Australian Grand Prix' AND T2.positionOrder = 1 AND T3.positionOrder = (SELECT MAX(positionOrder) FROM results WHERE raceId = T1.raceId AND time IS NOT NULL);"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find how much faster in percentage the champion is than the driver who finished last in the 2008 Australian Grand Prix, we need to follow these steps: 1) Identify the raceId for the 2008 Australian Grand Prix. 2) Find the champion's time and the last driver's time for that race. 3) Calculate the percentage difference based on the given formula. We will use aliases for the tables and ensure we follow the instructions strictly.",
+        "SQL": "SELECT ((CAST(SUBSTR(T2.time, 1, INSTR(T2.time, ':') - 1) AS INTEGER) * 60 + CAST(SUBSTR(T2.time, INSTR(T2.time, ':') + 1) AS REAL)) / (CAST(SUBSTR(T2.time, 1, INSTR(T2.time, ':') - 1) AS INTEGER) * 60 + CAST(SUBSTR(T2.time, INSTR(T2.time, ':') + 1) AS REAL) + CAST(T3.time AS REAL)) * 100) AS percentage_faster FROM races T1 JOIN results T2 ON T1.raceId = T2.raceId JOIN results T3 ON T1.raceId = T3.raceId WHERE T1.year = 2008 AND T1.name = 'Australian Grand Prix' AND T2.positionOrder = 1 AND T3.positionOrder = (SELECT MAX(positionOrder) FROM results WHERE raceId = T1.raceId AND time IS NOT NULL);"
+    },
+    "evaluation": {
+        "Question": "How much faster in percentage is the champion than the driver who finished the race last in the 2008 Australian Grand Prix?",
+        "Evidence": "how much faster in percentage = divide(subtract(incremental time, champion time), last_driver time) * 100%; last driver finished time = incremental time + champion time; only champion's finished time is represented by 'HH:MM:SS.mmm'; finished the game refers to time is not null",
+        "GOLD_SQL": "WITH time_in_seconds AS ( SELECT T1.positionOrder, CASE WHEN T1.positionOrder = 1 THEN (CAST(SUBSTR(T1.time, 1, 1) AS REAL) * 3600) + (CAST(SUBSTR(T1.time, 3, 2) AS REAL) * 60) + CAST(SUBSTR(T1.time, 6) AS REAL) ELSE CAST(SUBSTR(T1.time, 2) AS REAL) END AS time_seconds FROM results AS T1 INNER JOIN races AS T2 ON T1.raceId = T2.raceId WHERE T2.name = 'Australian Grand Prix' AND T1.time IS NOT NULL AND T2.year = 2008 ), champion_time AS ( SELECT time_seconds FROM time_in_seconds WHERE positionOrder = 1), last_driver_incremental AS ( SELECT time_seconds FROM time_in_seconds WHERE positionOrder = (SELECT MAX(positionOrder) FROM time_in_seconds) ) SELECT (CAST((SELECT time_seconds FROM last_driver_incremental) AS REAL) * 100) / (SELECT time_seconds + (SELECT time_seconds FROM last_driver_incremental) FROM champion_time)",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT ((CAST(SUBSTR(T2.time, 1, INSTR(T2.time, ':') - 1) AS INTEGER) * 60 + CAST(SUBSTR(T2.time, INSTR(T2.time, ':') + 1) AS REAL)) / (CAST(SUBSTR(T2.time, 1, INSTR(T2.time, ':') - 1) AS INTEGER) * 60 + CAST(SUBSTR(T2.time, INSTR(T2.time, ':') + 1) AS REAL) + CAST(T3.time AS REAL)) * 100) AS percentage_faster FROM races T1 JOIN results T2 ON T1.raceId = T2.raceId JOIN results T3 ON T1.raceId = T3.raceId WHERE T1.year = 2008 AND T1.name = 'Australian Grand Prix' AND T2.positionOrder = 1 AND T3.positionOrder = (SELECT MAX(positionOrder) FROM results WHERE raceId = T1.raceId AND time IS NOT NULL);"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT ((CAST(SUBSTR(T2.time, 1, INSTR(T2.time, ':') - 1) AS INTEGER) * 60 + CAST(SUBSTR(T2.time, INSTR(T2.time, ':') + 1) AS REAL)) / (CAST(SUBSTR(T2.time, 1, INSTR(T2.time, ':') - 1) AS INTEGER) * 60 + CAST(SUBSTR(T2.time, INSTR(T2.time, ':') + 1) AS REAL) + CAST(T3.time AS REAL)) * 100) AS percentage_faster FROM races T1 JOIN results T2 ON T1.raceId = T2.raceId JOIN results T3 ON T1.raceId = T3.raceId WHERE T1.year = 2008 AND T1.name = 'Australian Grand Prix' AND T2.positionOrder = 1 AND T3.positionOrder = (SELECT MAX(positionOrder) FROM results WHERE raceId = T1.raceId AND time IS NOT NULL);"
+        }
+    },
+    "latency": 147.85387468338013,
+    "cost": 0.04721504,
+    "module_latencies": {
+        "keyword_extraction": 1.052994966506958,
+        "entity_retrieval": 111.39683818817139,
+        "context_retrieval": 19.36622667312622,
+        "table_selection": 3.4267048835754395,
+        "column_selection": 2.4611165523529053,
+        "candidate_generation": 3.8723926544189453,
+        "revision": 6.217402458190918,
+        "evaluation": 0.060198307037353516
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00015344999999999996,
+        "entity_retrieval": 0.0002915899999999992,
+        "context_retrieval": 0,
+        "table_selection": 0.011135,
+        "column_selection": 0.00861,
+        "candidate_generation": 0.010454999999999999,
+        "revision": 0.016569999999999998,
+        "evaluation": 0
+    }
+}

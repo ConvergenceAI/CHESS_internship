@@ -1,0 +1,194 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "2012",
+        "least consumption",
+        "LAM",
+        "Between 201201 And 201212",
+        "January",
+        "December"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "yearmonth": [
+                "Consumption"
+            ]
+        },
+        "similar_values": {
+            "customers": {
+                "Segment": [
+                    "LAM"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "yearmonth": {
+                "consumption": {
+                    "column_name": "",
+                    "column_description": "consumption",
+                    "value_description": ""
+                },
+                "date": {
+                    "column_name": "",
+                    "column_description": "Date",
+                    "value_description": ""
+                }
+            },
+            "transactions_1k": {
+                "gasstationid": {
+                    "column_name": "Gas Station ID",
+                    "column_description": "Gas Station ID",
+                    "value_description": ""
+                },
+                "date": {
+                    "column_name": "",
+                    "column_description": "Date",
+                    "value_description": ""
+                },
+                "time": {
+                    "column_name": "",
+                    "column_description": "Time",
+                    "value_description": ""
+                },
+                "amount": {
+                    "column_name": "",
+                    "column_description": "Amount",
+                    "value_description": ""
+                }
+            },
+            "gasstations": {
+                "gasstationid": {
+                    "column_name": "Gas Station ID",
+                    "column_description": "Gas Station ID",
+                    "value_description": ""
+                },
+                "chainid": {
+                    "column_name": "Chain ID",
+                    "column_description": "Chain ID",
+                    "value_description": ""
+                }
+            },
+            "customers": {
+                "segment": {
+                    "column_name": "client segment",
+                    "column_description": "client segment",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "customers": [
+                "CustomerID",
+                "Segment",
+                "Currency"
+            ],
+            "yearmonth": [
+                "CustomerID",
+                "Date",
+                "Consumption"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine who had the least consumption in LAM in 2012, we need to identify the customers and their consumption data. The 'yearmonth' table contains the consumption data for each customer by month, which is crucial for calculating the total consumption in 2012. The 'customers' table is necessary to filter customers by the 'LAM' segment. By joining these two tables, we can filter the data to only include customers in the 'LAM' segment and sum their consumption for the year 2012. The 'transactions_1k', 'gasstations', and 'products' tables are not needed because they do not provide relevant information for the customer's segment or their consumption data.",
+        "selected_tables": [
+            "customers",
+            "yearmonth"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "customers": [
+                "CustomerID",
+                "Segment"
+            ],
+            "yearmonth": [
+                "CustomerID",
+                "Date",
+                "Consumption"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question 'In 2012, who had the least consumption in LAM?', we need to identify the customers who belong to the 'LAM' segment and their consumption data for the year 2012. The 'customers' table contains the 'Segment' column to filter customers by 'LAM' and the 'CustomerID' column to uniquely identify each customer. The 'yearmonth' table contains the 'Date' column to filter records for the year 2012 and the 'Consumption' column to determine the consumption values. The 'CustomerID' column in the 'yearmonth' table is necessary to join with the 'customers' table to link consumption data with customer segments."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, I need to filter the data to include only the records from the year 2012 and where the segment is 'LAM'. Then, I need to find the customer with the least consumption within this filtered data. To achieve this, I will join the 'customers' and 'yearmonth' tables on 'CustomerID', filter the records based on the date range and segment, and then order the results by consumption in ascending order, limiting the result to the top one record.",
+        "SQL": "SELECT T1.CustomerID FROM customers T1 JOIN yearmonth T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Date BETWEEN '201201' AND '201212' AND T1.Segment = 'LAM' ORDER BY T2.Consumption ASC LIMIT 1;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the customer with the least consumption in the LAM segment for the year 2012, I need to join the 'customers' and 'yearmonth' tables on 'CustomerID'. I will filter the results to include only those records where the 'Date' is between '201201' and '201212' and the 'Segment' is 'LAM'. I will then order the results by 'Consumption' in ascending order and limit the result to 1 to get the customer with the least consumption.",
+        "SQL": "SELECT T1.CustomerID FROM customers T1 JOIN yearmonth T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Date BETWEEN '201201' AND '201212' AND T1.Segment = 'LAM' ORDER BY T2.Consumption ASC LIMIT 1;"
+    },
+    "evaluation": {
+        "Question": "In 2012, who had the least consumption in LAM?",
+        "Evidence": "Year 2012 can be presented as Between 201201 And 201212, which means between January and December in 2012",
+        "GOLD_SQL": "SELECT T1.CustomerID FROM customers AS T1 INNER JOIN yearmonth AS T2 ON T1.CustomerID = T2.CustomerID WHERE T1.Segment = 'LAM' AND T2.date BETWEEN 201201 AND 201212 GROUP BY T1.CustomerID ORDER BY SUM(T2.Consumption) ASC LIMIT 1",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.CustomerID FROM customers T1 JOIN yearmonth T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Date BETWEEN '201201' AND '201212' AND T1.Segment = 'LAM' ORDER BY T2.Consumption ASC LIMIT 1;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.CustomerID FROM customers T1 JOIN yearmonth T2 ON T1.CustomerID = T2.CustomerID WHERE T2.Date BETWEEN '201201' AND '201212' AND T1.Segment = 'LAM' ORDER BY T2.Consumption ASC LIMIT 1;"
+        }
+    },
+    "latency": 30.28120255470276,
+    "cost": 0.026875910000000003,
+    "module_latencies": {
+        "keyword_extraction": 0.9541952610015869,
+        "entity_retrieval": 8.245548725128174,
+        "context_retrieval": 7.217301368713379,
+        "table_selection": 2.5250844955444336,
+        "column_selection": 2.3504106998443604,
+        "candidate_generation": 3.887118101119995,
+        "revision": 4.30351185798645,
+        "evaluation": 0.7980320453643799
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011895,
+        "entity_retrieval": 1.1959999999999999e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.0058200000000000005,
+        "column_selection": 0.005825,
+        "candidate_generation": 0.00687,
+        "revision": 0.008230000000000001,
+        "evaluation": 0
+    }
+}

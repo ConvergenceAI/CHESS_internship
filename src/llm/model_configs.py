@@ -1,4 +1,23 @@
 MODEL_CONFIGS = {
+    "o1_preview": {
+        "provider": "openai",
+        "model": "o1-preview",
+        "temperature": 0,
+        "model_type": "chat",
+        "max_tokens": 10000,
+        "price_per_1k_input_tokens": 0.015,
+        "price_per_1k_output_tokens": 0.06
+    },
+    "o1_mini": {
+        "provider": "openai",
+        "model": "o1-mini",
+        "temperature": 0,
+        "model_type": "chat",
+        "max_tokens": 10000,
+        "price_per_1k_input_tokens": 0.003,
+        "price_per_1k_output_tokens": 0.012
+
+    },
     "gpt-3.5": {
         "provider": "openai",
         "model": "gpt-3.5-turbo",

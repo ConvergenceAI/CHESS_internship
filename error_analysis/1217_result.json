@@ -1,0 +1,260 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "patient",
+        "1982",
+        "albumin",
+        "normal range",
+        "ALB",
+        "3.5",
+        "5.5",
+        "Birthday"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "Laboratory": [
+                "ALB"
+            ],
+            "Patient": [
+                "Birthday"
+            ]
+        },
+        "similar_values": {
+            "Laboratory": {
+                "RF": [
+                    "33.5",
+                    "95.5"
+                ],
+                "CRP": [
+                    "5.5",
+                    "3.5"
+                ],
+                "DNA": [
+                    "95.5"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "laboratory": {
+                "alb": {
+                    "column_name": "albumin",
+                    "column_description": "albumin",
+                    "value_description": "Commonsense evidence:  Normal range: 3.5 < N < 5.5"
+                },
+                "hct": {
+                    "column_name": "Hematoclit",
+                    "column_description": "Hematoclit",
+                    "value_description": "Commonsense evidence: Normal range: 29 < N < 52"
+                },
+                "tp": {
+                    "column_name": "total protein",
+                    "column_description": "total protein",
+                    "value_description": "Commonsense evidence:  Normal range: 6.0 < N < 8.5"
+                },
+                "wbc": {
+                    "column_name": "White blood cell",
+                    "column_description": "White blood cell",
+                    "value_description": "Commonsense evidence: Normal range: 3.5 < N < 9.0"
+                },
+                "rbc": {
+                    "column_name": "Red blood cell",
+                    "column_description": "Red blood cell",
+                    "value_description": "Commonsense evidence:  Normal range: 3.5 < N < 6.0"
+                },
+                "cre": {
+                    "column_name": "creatinine",
+                    "column_description": "creatinine",
+                    "value_description": "Commonsense evidence:  Normal range: N < 1.5"
+                },
+                "tg": {
+                    "column_name": "triglyceride",
+                    "column_description": "triglyceride",
+                    "value_description": "Commonsense evidence:  Normal range: N < 200"
+                },
+                "glu": {
+                    "column_name": "blood glucose",
+                    "column_description": "blood glucose",
+                    "value_description": "Commonsense evidence: Normal range: N < 180"
+                },
+                "aptt": {
+                    "column_name": "activated partial prothrombin time",
+                    "column_description": "activated partial prothrombin time",
+                    "value_description": "Commonsense evidence:  Normal range: N < 45"
+                },
+                "cpk": {
+                    "column_name": "creatinine phosphokinase",
+                    "column_description": "creatinine phosphokinase",
+                    "value_description": "Commonsense evidence: Normal range: N < 250"
+                },
+                "t-cho": {
+                    "column_name": "total cholesterol",
+                    "column_description": "total cholesterol",
+                    "value_description": "Commonsense evidence: Normal range: N < 250"
+                },
+                "c3": {
+                    "column_name": "complement 3",
+                    "column_description": "complement 3",
+                    "value_description": "Commonsense evidence:  Normal range: N > 35"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "Patient": [
+                "ID",
+                "SEX",
+                "Birthday",
+                "Description",
+                "First Date",
+                "Admission",
+                "Diagnosis"
+            ],
+            "Laboratory": [
+                "ID",
+                "Date",
+                "GOT",
+                "GPT",
+                "LDH",
+                "ALP",
+                "TP",
+                "ALB",
+                "UA",
+                "UN",
+                "CRE",
+                "T-BIL",
+                "T-CHO",
+                "TG",
+                "CPK",
+                "GLU",
+                "WBC",
+                "RBC",
+                "HGB",
+                "HCT",
+                "PLT",
+                "PT",
+                "APTT",
+                "FG",
+                "PIC",
+                "TAT",
+                "TAT2",
+                "U-PRO",
+                "IGG",
+                "IGA",
+                "IGM",
+                "CRP",
+                "RA",
+                "RF",
+                "C3",
+                "C4",
+                "RNP",
+                "SM",
+                "SC170",
+                "SSA",
+                "SSB",
+                "CENTROMEA",
+                "DNA",
+                "DNA-II"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify patients born in 1982 and check if their albumin levels are within the normal range. The 'Patient' table contains the 'Birthday' column, which allows us to filter patients born in 1982. The 'Laboratory' table contains the 'ALB' column, which provides the albumin levels for these patients. Therefore, we need both the 'Patient' and 'Laboratory' tables to answer the question effectively.",
+        "selected_tables": [
+            "Patient",
+            "Laboratory"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "Patient": [
+                "ID",
+                "Birthday"
+            ],
+            "Laboratory": [
+                "ID",
+                "ALB"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify patients born in 1982 and check if their albumin levels are within the normal range. Therefore, we need the 'Birthday' column from the 'Patient' table to filter patients born in 1982. We also need the 'ID' column from the 'Patient' table to join with the 'Laboratory' table. From the 'Laboratory' table, we need the 'ALB' column to check the albumin levels and the 'ID' column to join with the 'Patient' table."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, I need to identify patients born in 1982. Then, I need to check if their albumin (ALB) values are within the normal range (3.5 < ALB < 5.5). I will join the Patient and Laboratory tables on the patient ID and filter the results based on the birth year and albumin range. Finally, I will select the patient ID and a boolean indicating if the albumin is within the normal range.",
+        "SQL": "SELECT T1.ID, (T2.ALB > 3.5 AND T2.ALB < 5.5) AS is_albumin_normal FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE strftime('%Y', T1.Birthday) = '1982';"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find all patients born in 1982 and check if their albumin levels are within the normal range, I need to join the Patient and Laboratory tables on the ID column. I will filter the patients based on their birth year and check if their albumin levels fall within the specified range. I will ensure that null values are filtered out in the albumin column.",
+        "SQL": "SELECT T1.ID, (T2.ALB > 3.5 AND T2.ALB < 5.5) AS is_albumin_normal FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE strftime('%Y', T1.Birthday) = '1982' AND T2.ALB IS NOT NULL;"
+    },
+    "evaluation": {
+        "Question": "For all patient born in 1982, state if their albumin is within normal range.",
+        "Evidence": "Year(Birthday) = '1982'; albumin is within normal range refers to ALB between 3.5 and 5.5",
+        "GOLD_SQL": "SELECT CASE WHEN T2.ALB >= 3.5 AND T2.ALB <= 5.5 THEN 'normal' ELSE 'abnormal' END FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE STRFTIME('%Y', T1.Birthday) = '1982'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.ID, (T2.ALB > 3.5 AND T2.ALB < 5.5) AS is_albumin_normal FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE strftime('%Y', T1.Birthday) = '1982';"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.ID, (T2.ALB > 3.5 AND T2.ALB < 5.5) AS is_albumin_normal FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE strftime('%Y', T1.Birthday) = '1982' AND T2.ALB IS NOT NULL;"
+        }
+    },
+    "latency": 41.113871574401855,
+    "cost": 0.037373870000000003,
+    "module_latencies": {
+        "keyword_extraction": 0.7643318176269531,
+        "entity_retrieval": 22.00842547416687,
+        "context_retrieval": 8.628297328948975,
+        "table_selection": 2.1046323776245117,
+        "column_selection": 2.583258867263794,
+        "candidate_generation": 2.7374682426452637,
+        "revision": 2.24873948097229,
+        "evaluation": 0.03871798515319824
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00012299999999999998,
+        "entity_retrieval": 2.587000000000002e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.008635,
+        "column_selection": 0.00894,
+        "candidate_generation": 0.007155,
+        "revision": 0.012495,
+        "evaluation": 0
+    }
+}

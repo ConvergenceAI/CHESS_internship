@@ -1,0 +1,278 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "cards",
+        "set OGW",
+        "colour",
+        "setCode",
+        "'OGW'"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "cards": [
+                "setCode",
+                "colors"
+            ]
+        },
+        "similar_values": {
+            "cards": {
+                "watermark": [
+                    "set (OGW)"
+                ],
+                "printings": [
+                    "OGW"
+                ],
+                "setCode": [
+                    "OGW"
+                ]
+            },
+            "sets": {
+                "code": [
+                    "OGW"
+                ],
+                "mtgoCode": [
+                    "OGW"
+                ],
+                "parentCode": [
+                    "OGW"
+                ],
+                "keyruneCode": [
+                    "OGW"
+                ]
+            },
+            "set_translations": {
+                "setCode": [
+                    "OGW"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "cards": {
+                "colorindicator": {
+                    "column_name": "color Indicator",
+                    "column_description": "A list of all the colors in the color indicator (The symbol prefixed to a card's types).",
+                    "value_description": ""
+                },
+                "bordercolor": {
+                    "column_name": "border Color",
+                    "column_description": "The color of the card border.",
+                    "value_description": "\"black\", \"borderless\", \"gold\", \"silver\", \"white\""
+                },
+                "hascontentwarning": {
+                    "column_name": "has Content Warning",
+                    "column_description": "If the card marked by Wizards of the Coast (opens new window) for having sensitive content. See this official article (opens new window) for more information.",
+                    "value_description": "0: doesn't have 1: has sensitve content or Wizards of the Coast  Cards with this property may have missing or degraded properties and values."
+                },
+                "setcode": {
+                    "column_name": "Set Code",
+                    "column_description": "The set printing code that the card is from.",
+                    "value_description": ""
+                },
+                "colors": {
+                    "column_name": "",
+                    "column_description": "A list of all the colors in manaCost and colorIndicator.",
+                    "value_description": "Some cards may not have values, such as cards with \"Devoid\" in its text."
+                }
+            },
+            "set_translations": {
+                "language": {
+                    "column_name": "",
+                    "column_description": "language of this card set",
+                    "value_description": ""
+                },
+                "setcode": {
+                    "column_name": "set code",
+                    "column_description": "the set code for this set",
+                    "value_description": ""
+                }
+            },
+            "sets": {
+                "mtgocode": {
+                    "column_name": "magic the gathering online code",
+                    "column_description": "The set code for the set as it appears on Magic: The Gathering Online",
+                    "value_description": "if the value is null or empty, then it doesn't appear on Magic: The Gathering Online"
+                },
+                "code": {
+                    "column_name": "",
+                    "column_description": "The set code for the set.",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "cards": [
+                "id",
+                "artist",
+                "asciiName",
+                "availability",
+                "borderColor",
+                "cardKingdomFoilId",
+                "cardKingdomId",
+                "colorIdentity",
+                "colorIndicator",
+                "colors",
+                "convertedManaCost",
+                "duelDeck",
+                "edhrecRank",
+                "faceConvertedManaCost",
+                "faceName",
+                "flavorName",
+                "flavorText",
+                "frameEffects",
+                "frameVersion",
+                "hand",
+                "hasAlternativeDeckLimit",
+                "hasContentWarning",
+                "hasFoil",
+                "hasNonFoil",
+                "isAlternative",
+                "isFullArt",
+                "isOnlineOnly",
+                "isOversized",
+                "isPromo",
+                "isReprint",
+                "isReserved",
+                "isStarter",
+                "isStorySpotlight",
+                "isTextless",
+                "isTimeshifted",
+                "keywords",
+                "layout",
+                "leadershipSkills",
+                "life",
+                "loyalty",
+                "manaCost",
+                "mcmId",
+                "mcmMetaId",
+                "mtgArenaId",
+                "mtgjsonV4Id",
+                "mtgoFoilId",
+                "mtgoId",
+                "multiverseId",
+                "name",
+                "number",
+                "originalReleaseDate",
+                "originalText",
+                "originalType",
+                "otherFaceIds",
+                "power",
+                "printings",
+                "promoTypes",
+                "purchaseUrls",
+                "rarity",
+                "scryfallId",
+                "scryfallIllustrationId",
+                "scryfallOracleId",
+                "setCode",
+                "side",
+                "subtypes",
+                "supertypes",
+                "tcgplayerProductId",
+                "text",
+                "toughness",
+                "type",
+                "types",
+                "uuid",
+                "variations",
+                "watermark"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question 'What are the cards for set OGW? State the colour for these cards.', we need to identify the cards that belong to the set with setCode 'OGW' and retrieve their colors. The 'cards' table contains information about each card, including its setCode and colors. Therefore, we need to use the 'cards' table to filter cards by setCode 'OGW' and to get the color information for these cards. No other tables are necessary because all required information is contained within the 'cards' table.",
+        "selected_tables": [
+            "cards"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "cards": [
+                "setCode",
+                "name",
+                "colors"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question 'What are the cards for set OGW? State the colour for these cards.', we need to identify the cards that belong to the set with setCode 'OGW' and retrieve their names and colors. The 'setCode' column is used to filter the cards that belong to the 'OGW' set. The 'name' column is necessary to list the names of these cards. The 'colors' column is required to state the colors of these cards."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To find the cards for set OGW and state their colors, I need to filter the rows in the 'cards' table where the setCode is 'OGW'. I will then select the 'name' and 'colors' columns for these rows. This ensures that I only output the information asked in the question.",
+        "SQL": "SELECT name, colors FROM cards WHERE setCode = 'OGW';"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "The question asks for the cards in the set 'OGW' and their colors. The hint indicates that 'OGW' refers to the setCode. Therefore, we need to filter the cards table by setCode = 'OGW' and select the name and colors columns.",
+        "SQL": "SELECT name, colors FROM cards WHERE setCode = 'OGW';"
+    },
+    "evaluation": {
+        "Question": "What are the cards for set OGW? State the colour for these cards.",
+        "Evidence": "set OGW refers to setCode = 'OGW';",
+        "GOLD_SQL": "SELECT id, colors FROM cards WHERE id IN ( SELECT id FROM set_translations WHERE setCode = 'OGW' )",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT name, colors FROM cards WHERE setCode = 'OGW';"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT name, colors FROM cards WHERE setCode = 'OGW';"
+        }
+    },
+    "latency": 71.18696451187134,
+    "cost": 0.03717859,
+    "module_latencies": {
+        "keyword_extraction": 0.6090521812438965,
+        "entity_retrieval": 52.22232127189636,
+        "context_retrieval": 7.851646184921265,
+        "table_selection": 5.017040967941284,
+        "column_selection": 1.794940710067749,
+        "candidate_generation": 1.5446784496307373,
+        "revision": 2.0416641235351562,
+        "evaluation": 0.1056206226348877
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011264999999999999,
+        "entity_retrieval": 3.094e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.01006,
+        "column_selection": 0.008190000000000001,
+        "candidate_generation": 0.005625,
+        "revision": 0.01316,
+        "evaluation": 0
+    }
+}

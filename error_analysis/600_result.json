@@ -1,0 +1,218 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "post",
+        "post ID 61217",
+        "popularity",
+        "RelatedPostId",
+        "ViewCount"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "postLinks": [
+                "RelatedPostId",
+                "Id"
+            ],
+            "posts": [
+                "ViewCount"
+            ]
+        },
+        "similar_values": {
+            "users": {
+                "DisplayName": [
+                    "poster"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "postlinks": {
+                "relatedpostid": {
+                    "column_name": "Related Post Id",
+                    "column_description": "the id of the related post",
+                    "value_description": ""
+                },
+                "postid": {
+                    "column_name": "Post Id",
+                    "column_description": "the post id",
+                    "value_description": ""
+                },
+                "id": {
+                    "column_name": "",
+                    "column_description": "the post link id",
+                    "value_description": ""
+                }
+            },
+            "posts": {
+                "id": {
+                    "column_name": "",
+                    "column_description": "the post id",
+                    "value_description": ""
+                },
+                "viewcount": {
+                    "column_name": "View Count",
+                    "column_description": "the view count of the post",
+                    "value_description": "Higher view count means the post has higher popularity"
+                }
+            },
+            "posthistory": {
+                "id": {
+                    "column_name": "",
+                    "column_description": "the post history id",
+                    "value_description": ""
+                },
+                "postid": {
+                    "column_name": "Post Id",
+                    "column_description": "the unique id of the post",
+                    "value_description": ""
+                }
+            },
+            "votes": {
+                "postid": {
+                    "column_name": "Post Id",
+                    "column_description": "the id of the post that is voted",
+                    "value_description": ""
+                }
+            },
+            "comments": {
+                "postid": {
+                    "column_name": "Post Id",
+                    "column_description": "the unique id of the post",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "postLinks": [
+                "Id",
+                "CreationDate",
+                "PostId",
+                "RelatedPostId",
+                "LinkTypeId"
+            ],
+            "posts": [
+                "Id",
+                "PostTypeId",
+                "AcceptedAnswerId",
+                "CreaionDate",
+                "Score",
+                "ViewCount",
+                "Body",
+                "OwnerUserId",
+                "LasActivityDate",
+                "Title",
+                "Tags",
+                "AnswerCount",
+                "CommentCount",
+                "FavoriteCount",
+                "LastEditorUserId",
+                "LastEditDate",
+                "CommunityOwnedDate",
+                "ParentId",
+                "ClosedDate",
+                "OwnerDisplayName",
+                "LastEditorDisplayName"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify all posts related to post ID 61217 and determine the popularity of post ID 61217. The hint specifies that 'post related' refers to RelatedPostId and 'popularity' refers to ViewCount. The 'postLinks' table contains the RelatedPostId, which will help us find all posts related to post ID 61217. The 'posts' table contains the ViewCount, which will help us determine the popularity of post ID 61217. Additionally, the 'posts' table will also be used to fetch details of the related posts.",
+        "selected_tables": [
+            "postLinks",
+            "posts"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "postLinks": [
+                "PostId",
+                "RelatedPostId"
+            ],
+            "posts": [
+                "Id",
+                "ViewCount"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify posts related to a specific post ID (61217) and determine the popularity of that post. The hint specifies that 'post related' refers to the RelatedPostId column in the postLinks table and 'popularity' refers to the ViewCount column in the posts table. Therefore, we need to select columns that allow us to find related posts and retrieve the view count of the specified post."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "To answer the question, we need to find all posts that are related to the post with ID 61217 and also get the popularity (ViewCount) of the post with ID 61217. We will use the postLinks table to find the related posts and the posts table to get the ViewCount. We will join the postLinks table with the posts table to get the related posts and their details. We will also join the posts table with itself to get the ViewCount of the post with ID 61217.",
+        "SQL": "SELECT T1.PostId, T2.ViewCount FROM postLinks T1 JOIN posts T2 ON T1.PostId = T2.Id WHERE T1.RelatedPostId = 61217 UNION SELECT 61217 AS PostId, T3.ViewCount FROM posts T3 WHERE T3.Id = 61217;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "The question asks for all posts related to post ID 61217 and the popularity of post ID 61217. 'RelatedPostId' refers to the related posts, and 'ViewCount' refers to the popularity. We need to join the 'postLinks' table with the 'posts' table to get the related posts and their view counts. Additionally, we need to include the view count of the post ID 61217 itself. The UNION operator is used to combine these results. The query adheres to all the database admin instructions.",
+        "SQL": "SELECT T1.PostId, T2.ViewCount FROM postLinks T1 JOIN posts T2 ON T1.PostId = T2.Id WHERE T1.RelatedPostId = 61217 UNION SELECT 61217 AS PostId, T3.ViewCount FROM posts T3 WHERE T3.Id = 61217;"
+    },
+    "evaluation": {
+        "Question": "List out all post that are related to post ID 61217 and what is the popularity of this post?",
+        "Evidence": "post related refers to RelatedPostId; popularity refers to ViewCount",
+        "GOLD_SQL": "SELECT T1.ViewCount FROM posts AS T1 INNER JOIN postLinks AS T2 ON T1.Id = T2.PostId WHERE T2.PostId = 61217",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.PostId, T2.ViewCount FROM postLinks T1 JOIN posts T2 ON T1.PostId = T2.Id WHERE T1.RelatedPostId = 61217 UNION SELECT 61217 AS PostId, T3.ViewCount FROM posts T3 WHERE T3.Id = 61217;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.PostId, T2.ViewCount FROM postLinks T1 JOIN posts T2 ON T1.PostId = T2.Id WHERE T1.RelatedPostId = 61217 UNION SELECT 61217 AS PostId, T3.ViewCount FROM posts T3 WHERE T3.Id = 61217;"
+        }
+    },
+    "latency": 72.76200246810913,
+    "cost": 0.03676299,
+    "module_latencies": {
+        "keyword_extraction": 0.8162145614624023,
+        "entity_retrieval": 46.57763862609863,
+        "context_retrieval": 7.276447534561157,
+        "table_selection": 6.41686487197876,
+        "column_selection": 3.2438292503356934,
+        "candidate_generation": 2.8598480224609375,
+        "revision": 5.54410457611084,
+        "evaluation": 0.027055025100708008
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011564999999999999,
+        "entity_retrieval": 6.734000000000006e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.009755,
+        "column_selection": 0.006615,
+        "candidate_generation": 0.0073950000000000005,
+        "revision": 0.012815,
+        "evaluation": 0
+    }
+}

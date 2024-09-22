@@ -1,0 +1,259 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "ID",
+        "patient",
+        "born",
+        "April 1st, 1982",
+        "alkaliphophatase",
+        "ALP",
+        "normal range",
+        "ALP < 300"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "Patient": [
+                "ID"
+            ],
+            "Laboratory": [
+                "ALP"
+            ]
+        },
+        "similar_values": {
+            "Laboratory": {
+                "RF": [
+                    "1982.1"
+                ],
+                "U-PRO": [
+                    "300"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "laboratory": {
+                "alp": {
+                    "column_name": "alkaliphophatase",
+                    "column_description": "alkaliphophatase",
+                    "value_description": "Commonsense evidence:  Normal range: N < 300"
+                },
+                "id": {
+                    "column_name": "",
+                    "column_description": "identification of the patient",
+                    "value_description": ""
+                },
+                "aptt": {
+                    "column_name": "activated partial prothrombin time",
+                    "column_description": "activated partial prothrombin time",
+                    "value_description": "Commonsense evidence:  Normal range: N < 45"
+                },
+                "cpk": {
+                    "column_name": "creatinine phosphokinase",
+                    "column_description": "creatinine phosphokinase",
+                    "value_description": "Commonsense evidence: Normal range: N < 250"
+                },
+                "t-cho": {
+                    "column_name": "total cholesterol",
+                    "column_description": "total cholesterol",
+                    "value_description": "Commonsense evidence: Normal range: N < 250"
+                },
+                "ldh": {
+                    "column_name": "lactate dehydrogenase",
+                    "column_description": "lactate dehydrogenase",
+                    "value_description": "Commonsense evidence:  Normal range: N < 500"
+                },
+                "gpt": {
+                    "column_name": "ALT glutamic pyruvic transaminase",
+                    "column_description": "ALT glutamic pyruvic transaminase",
+                    "value_description": "Commonsense evidence:  Normal range: N < 60"
+                },
+                "cre": {
+                    "column_name": "creatinine",
+                    "column_description": "creatinine",
+                    "value_description": "Commonsense evidence:  Normal range: N < 1.5"
+                },
+                "hct": {
+                    "column_name": "Hematoclit",
+                    "column_description": "Hematoclit",
+                    "value_description": "Commonsense evidence: Normal range: 29 < N < 52"
+                }
+            },
+            "examination": {
+                "id": {
+                    "column_name": "",
+                    "column_description": "identification of the patient",
+                    "value_description": ""
+                }
+            },
+            "patient": {
+                "id": {
+                    "column_name": "",
+                    "column_description": "identification of the patient",
+                    "value_description": ""
+                },
+                "description": {
+                    "column_name": "",
+                    "column_description": "the first date when a patient data was recorded",
+                    "value_description": "null or empty: not recorded"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "Patient": [
+                "ID",
+                "SEX",
+                "Birthday",
+                "Description",
+                "First Date",
+                "Admission",
+                "Diagnosis"
+            ],
+            "Laboratory": [
+                "ID",
+                "Date",
+                "GOT",
+                "GPT",
+                "LDH",
+                "ALP",
+                "TP",
+                "ALB",
+                "UA",
+                "UN",
+                "CRE",
+                "T-BIL",
+                "T-CHO",
+                "TG",
+                "CPK",
+                "GLU",
+                "WBC",
+                "RBC",
+                "HGB",
+                "HCT",
+                "PLT",
+                "PT",
+                "APTT",
+                "FG",
+                "PIC",
+                "TAT",
+                "TAT2",
+                "U-PRO",
+                "IGG",
+                "IGA",
+                "IGM",
+                "CRP",
+                "RA",
+                "RF",
+                "C3",
+                "C4",
+                "RNP",
+                "SM",
+                "SC170",
+                "SSA",
+                "SSB",
+                "CENTROMEA",
+                "DNA",
+                "DNA-II"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the patient born on April 1st, 1982, and then check if their alkaliphophatase (ALP) levels are within the normal range. The 'Patient' table contains the 'Birthday' column, which allows us to find the patient born on the specified date. The 'Laboratory' table contains the 'ALP' column, which allows us to check the ALP levels for the identified patient. Therefore, we need both the 'Patient' and 'Laboratory' tables to answer the question effectively.",
+        "selected_tables": [
+            "Patient",
+            "Laboratory"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "Patient": [
+                "ID",
+                "Birthday"
+            ],
+            "Laboratory": [
+                "ID",
+                "ALP"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the patient born on April 1st, 1982, and then check if their ALP value is within the normal range (ALP < 300). Therefore, we need the 'ID' and 'Birthday' columns from the 'Patient' table to find the specific patient. From the 'Laboratory' table, we need the 'ID' to link to the 'Patient' table and the 'ALP' column to check the ALP value."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, I need to identify the patient who was born on April 1st, 1982. Then, I need to check if this patient's ALP value is within the normal range (ALP < 300). I will join the Patient and Laboratory tables on the patient ID and filter the results based on the given conditions.",
+        "SQL": "SELECT T1.ID, T2.ALP < 300 AS is_ALP_within_normal_range FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE T1.Birthday = '1982-04-01';"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "First, I need to identify the patient born on April 1st, 1982. Then, I need to check if their ALP value is within the normal range (ALP < 300). I will join the Patient and Laboratory tables on the ID column and filter by the specified birthdate. I will ensure to only select the ID and the ALP condition as required.",
+        "SQL": "SELECT T1.ID, T2.ALP < 300 AS is_ALP_within_normal_range FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE T1.Birthday = '1982-04-01' AND T2.ALP IS NOT NULL;"
+    },
+    "evaluation": {
+        "Question": "Name the ID of the patient who is born on the April 1st, 1982. Is his/her alkaliphophatase (ALP) within normal range?",
+        "Evidence": "alkaliphophatase (ALP) within normal range refers to ALP < 300",
+        "GOLD_SQL": "SELECT T1.ID , CASE WHEN T2.ALP < 300 THEN 'normal' ELSE 'abNormal' END FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T1.Birthday = '1982-04-01'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.ID, T2.ALP < 300 AS is_ALP_within_normal_range FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE T1.Birthday = '1982-04-01';"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T1.ID, T2.ALP < 300 AS is_ALP_within_normal_range FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE T1.Birthday = '1982-04-01' AND T2.ALP IS NOT NULL;"
+        }
+    },
+    "latency": 49.564839601516724,
+    "cost": 0.035616339999999996,
+    "module_latencies": {
+        "keyword_extraction": 0.8182070255279541,
+        "entity_retrieval": 30.672592639923096,
+        "context_retrieval": 9.120708465576172,
+        "table_selection": 2.080345392227173,
+        "column_selection": 2.5855908393859863,
+        "candidate_generation": 2.103670597076416,
+        "revision": 2.1724724769592285,
+        "evaluation": 0.011252164840698242
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00013005,
+        "entity_retrieval": 5.629000000000005e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.00856,
+        "column_selection": 0.008379999999999999,
+        "candidate_generation": 0.00657,
+        "revision": 0.011919999999999998,
+        "evaluation": 0
+    }
+}

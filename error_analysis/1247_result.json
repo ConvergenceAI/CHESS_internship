@@ -1,0 +1,263 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "male patients",
+        "normal level of white blood cells",
+        "abnormal fibrinogen level",
+        "Sex = 'M'",
+        "WBC between 3.5 and 9.0",
+        "FG <= 150",
+        "FG >= 450",
+        "Don't compute repetitive ones"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "Patient": [
+                "SEX"
+            ],
+            "Laboratory": [
+                "FG",
+                "WBC"
+            ]
+        },
+        "similar_values": {
+            "Laboratory": {
+                "RF": [
+                    "150"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "laboratory": {
+                "fg": {
+                    "column_name": "fibrinogen",
+                    "column_description": "fibrinogen",
+                    "value_description": "Commonsense evidence:  Normal range: 150 < N < 450"
+                },
+                "aptt": {
+                    "column_name": "activated partial prothrombin time",
+                    "column_description": "activated partial prothrombin time",
+                    "value_description": "Commonsense evidence:  Normal range: N < 45"
+                },
+                "ldh": {
+                    "column_name": "lactate dehydrogenase",
+                    "column_description": "lactate dehydrogenase",
+                    "value_description": "Commonsense evidence:  Normal range: N < 500"
+                },
+                "c3": {
+                    "column_name": "complement 3",
+                    "column_description": "complement 3",
+                    "value_description": "Commonsense evidence:  Normal range: N > 35"
+                },
+                "wbc": {
+                    "column_name": "White blood cell",
+                    "column_description": "White blood cell",
+                    "value_description": "Commonsense evidence: Normal range: 3.5 < N < 9.0"
+                },
+                "c4": {
+                    "column_name": "complement 4",
+                    "column_description": "complement 4",
+                    "value_description": "Commonsense evidence:  Normal range: N > 10"
+                },
+                "alb": {
+                    "column_name": "albumin",
+                    "column_description": "albumin",
+                    "value_description": "Commonsense evidence:  Normal range: 3.5 < N < 5.5"
+                },
+                "tg": {
+                    "column_name": "triglyceride",
+                    "column_description": "triglyceride",
+                    "value_description": "Commonsense evidence:  Normal range: N < 200"
+                },
+                "alp": {
+                    "column_name": "alkaliphophatase",
+                    "column_description": "alkaliphophatase",
+                    "value_description": "Commonsense evidence:  Normal range: N < 300"
+                }
+            },
+            "patient": {
+                "sex": {
+                    "column_name": "",
+                    "column_description": "Sex",
+                    "value_description": "F: female; M: male"
+                }
+            },
+            "examination": {
+                "acl igm": {
+                    "column_name": "anti-Cardiolipin antibody (IgM)",
+                    "column_description": "anti-Cardiolipin antibody (IgM) concentration",
+                    "value_description": ""
+                },
+                "thrombosis": {
+                    "column_name": "",
+                    "column_description": "degree of thrombosis",
+                    "value_description": "0: negative (no thrombosis) 1: positive (the most serious) 2: positive (severe)3: positive (mild)"
+                },
+                "acl iga": {
+                    "column_name": "anti-Cardiolipin antibody (IgA) concentration",
+                    "column_description": "anti-Cardiolipin antibody (IgA) concentration",
+                    "value_description": ""
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "Patient": [
+                "ID",
+                "SEX",
+                "Birthday",
+                "Description",
+                "First Date",
+                "Admission",
+                "Diagnosis"
+            ],
+            "Laboratory": [
+                "ID",
+                "Date",
+                "GOT",
+                "GPT",
+                "LDH",
+                "ALP",
+                "TP",
+                "ALB",
+                "UA",
+                "UN",
+                "CRE",
+                "T-BIL",
+                "T-CHO",
+                "TG",
+                "CPK",
+                "GLU",
+                "WBC",
+                "RBC",
+                "HGB",
+                "HCT",
+                "PLT",
+                "PT",
+                "APTT",
+                "FG",
+                "PIC",
+                "TAT",
+                "TAT2",
+                "U-PRO",
+                "IGG",
+                "IGA",
+                "IGM",
+                "CRP",
+                "RA",
+                "RF",
+                "C3",
+                "C4",
+                "RNP",
+                "SM",
+                "SC170",
+                "SSA",
+                "SSB",
+                "CENTROMEA",
+                "DNA",
+                "DNA-II"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify male patients with normal white blood cell levels and check if they have abnormal fibrinogen levels. The 'Patient' table is necessary to filter male patients (Sex = 'M'). The 'Laboratory' table is required to check the white blood cell levels (WBC) and fibrinogen levels (FG). The 'Examination' table is not needed because it does not contain relevant information for this specific query. Therefore, the necessary tables are 'Patient' and 'Laboratory'.",
+        "selected_tables": [
+            "Patient",
+            "Laboratory"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "Patient": [
+                "ID",
+                "SEX"
+            ],
+            "Laboratory": [
+                "ID",
+                "WBC",
+                "FG"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify male patients (SEX = 'M') with normal white blood cell levels (WBC between 3.5 and 9.0) and then check if they have abnormal fibrinogen levels (FG <= 150 or FG >= 450). We need the Patient table to filter by sex and the Laboratory table to filter by WBC and FG levels. We also need the ID columns from both tables to join them correctly and ensure we don't count repetitive entries."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, we need to identify male patients with a normal level of white blood cells. Then, we need to check if these patients have an abnormal fibrinogen level. We will use a JOIN between the Patient and Laboratory tables to get the necessary data. We will filter for male patients (SEX = 'M'), normal WBC levels (3.5 < WBC < 9.0), and abnormal FG levels (FG <= 150 or FG >= 450). Finally, we will count the distinct patient IDs to avoid counting repetitive ones.",
+        "SQL": "SELECT COUNT(DISTINCT T1.ID) FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.WBC > 3.5 AND T2.WBC < 9.0 AND (T2.FG <= 150 OR T2.FG >= 450);"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the number of male patients with a normal level of white blood cells and an abnormal fibrinogen level, I need to join the Patient and Laboratory tables. I will filter for male patients (SEX = 'M'), normal white blood cell levels (WBC between 3.5 and 9.0), and abnormal fibrinogen levels (FG <= 150 or FG >= 450). I will use COUNT(DISTINCT T1.ID) to ensure no repetitive counts.",
+        "SQL": "SELECT COUNT(DISTINCT T1.ID) FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.WBC > 3.5 AND T2.WBC < 9.0 AND (T2.FG <= 150 OR T2.FG >= 450);"
+    },
+    "evaluation": {
+        "Question": "Among the male patients who have a normal level of white blood cells, how many of them have an abnormal fibrinogen level?",
+        "Evidence": "male patients refers to Sex = 'M'; normal level of white blood cells refers to WBC between 3.5 and 9.0; abnormal fibrinogen level refers to FG < = 150 or FG > = 450; Don't compute repetitive ones.",
+        "GOLD_SQL": "SELECT COUNT(DISTINCT T1.ID) FROM Patient AS T1 INNER JOIN Laboratory AS T2 ON T1.ID = T2.ID WHERE T2.FG <= 150 OR T2.FG >= 450 AND T2.WBC > 3.5 AND T2.WBC < 9.0 AND T1.SEX = 'M'",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(DISTINCT T1.ID) FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.WBC > 3.5 AND T2.WBC < 9.0 AND (T2.FG <= 150 OR T2.FG >= 450);"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT COUNT(DISTINCT T1.ID) FROM Patient T1 JOIN Laboratory T2 ON T1.ID = T2.ID WHERE T1.SEX = 'M' AND T2.WBC > 3.5 AND T2.WBC < 9.0 AND (T2.FG <= 150 OR T2.FG >= 450);"
+        }
+    },
+    "latency": 50.42808246612549,
+    "cost": 0.03783346,
+    "module_latencies": {
+        "keyword_extraction": 0.895233154296875,
+        "entity_retrieval": 28.981220245361328,
+        "context_retrieval": 10.755406618118286,
+        "table_selection": 2.6655616760253906,
+        "column_selection": 1.788835048675537,
+        "candidate_generation": 2.2694287300109863,
+        "revision": 3.0484719276428223,
+        "evaluation": 0.023925065994262695
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00014324999999999999,
+        "entity_retrieval": 8.021000000000007e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.009004999999999999,
+        "column_selection": 0.008535,
+        "candidate_generation": 0.007885,
+        "revision": 0.012185,
+        "evaluation": 0
+    }
+}

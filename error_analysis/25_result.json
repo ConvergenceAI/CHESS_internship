@@ -1,0 +1,249 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "gpt-4o"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "schools",
+        "Riverside",
+        "average math score",
+        "SAT",
+        "greater than 400",
+        "funding type",
+        "average of average math",
+        "sum(average math scores)",
+        "count(schools)"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "schools": [
+                "FundingType",
+                "School"
+            ]
+        },
+        "similar_values": {
+            "satscores": {
+                "cname": [
+                    "Riverside"
+                ]
+            },
+            "frpm": {
+                "County Name": [
+                    "Riverside"
+                ]
+            },
+            "schools": {
+                "County": [
+                    "Riverside"
+                ],
+                "MailCity": [
+                    "Riverside"
+                ],
+                "City": [
+                    "Riverside"
+                ],
+                "District": [
+                    "Riverside Unified"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "satscores": {
+                "avgscrmath": {
+                    "column_name": "average scores in Math",
+                    "column_description": "average scores in Math",
+                    "value_description": "average scores in Math"
+                },
+                "numtsttakr": {
+                    "column_name": "Number of Test Takers",
+                    "column_description": "Number of Test Takers in this school",
+                    "value_description": "number of test takers in each school"
+                },
+                "avgscrread": {
+                    "column_name": "average scores in Reading",
+                    "column_description": "average scores in Reading",
+                    "value_description": "average scores in Reading"
+                },
+                "numge1500": {
+                    "column_name": "Number of Test Takers Whose Total SAT Scores Are Greater or Equal to 1500",
+                    "column_description": "Number of Test Takers Whose Total SAT Scores Are Greater or Equal to 1500",
+                    "value_description": "Number of Test Takers Whose Total SAT Scores Are Greater or Equal to 1500    Excellence Rate = NumGE1500 / NumTstTakr"
+                }
+            },
+            "schools": {
+                "fundingtype": {
+                    "column_name": "",
+                    "column_description": "Indicates the charter school funding type",
+                    "value_description": "Values are as follows:  \u00b7\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 Not in CS (California School) funding model  \u00b7\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 Locally funded  \u00b7\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 Directly funded"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "satscores": [
+                "cds",
+                "rtype",
+                "sname",
+                "dname",
+                "cname",
+                "enroll12",
+                "NumTstTakr",
+                "AvgScrRead",
+                "AvgScrMath",
+                "AvgScrWrite",
+                "NumGE1500"
+            ],
+            "schools": [
+                "CDSCode",
+                "NCESDist",
+                "NCESSchool",
+                "StatusType",
+                "County",
+                "District",
+                "School",
+                "Street",
+                "StreetAbr",
+                "City",
+                "Zip",
+                "State",
+                "MailStreet",
+                "MailStrAbr",
+                "MailCity",
+                "MailZip",
+                "MailState",
+                "Phone",
+                "Ext",
+                "Website",
+                "OpenDate",
+                "ClosedDate",
+                "Charter",
+                "CharterNum",
+                "FundingType",
+                "DOC",
+                "DOCType",
+                "SOC",
+                "SOCType",
+                "EdOpsCode",
+                "EdOpsName",
+                "EILCode",
+                "EILName",
+                "GSoffered",
+                "GSserved",
+                "Virtual",
+                "Magnet",
+                "Latitude",
+                "Longitude",
+                "AdmFName1",
+                "AdmLName1",
+                "AdmEmail1",
+                "AdmFName2",
+                "AdmLName2",
+                "AdmEmail2",
+                "AdmFName3",
+                "AdmLName3",
+                "AdmEmail3",
+                "LastUpdate"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify schools in Riverside with an average math score greater than 400 and determine their funding type. The 'satscores' table contains the average math scores and the number of test takers, which are necessary to calculate the average of average math scores. The 'schools' table contains the county information to filter schools in Riverside and the funding type information. The 'frpm' table is not needed as it does not provide any additional relevant information for this specific query.",
+        "selected_tables": [
+            "satscores",
+            "schools"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "satscores": [
+                "cds",
+                "AvgScrMath"
+            ],
+            "schools": [
+                "CDSCode",
+                "County",
+                "School",
+                "FundingType"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify schools in Riverside with an average math score greater than 400 and determine their funding type. We need columns to filter by location (Riverside), calculate the average math score, and retrieve the funding type. Additionally, we need to join the two tables using the primary and foreign keys."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, we need to join the 'satscores' and 'schools' tables on the 'CDSCode' and 'cds' columns. Then, we filter the results to include only schools in Riverside county. Next, we calculate the average of the average math scores for these schools and filter to include only those schools where this average is greater than 400. Finally, we select the school names and their funding types.",
+        "SQL": "SELECT T2.CDSCode, T2.FundingType FROM satscores T1 JOIN schools T2 ON T1.cds = T2.CDSCode WHERE T2.County = 'Riverside' AND (SELECT AVG(T1.AvgScrMath) FROM satscores T1 JOIN schools T2 ON T1.cds = T2.CDSCode WHERE T2.County = 'Riverside' AND T1.AvgScrMath IS NOT NULL) > 400;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the schools in Riverside where the average of average math scores for SAT is greater than 400, I need to join the 'satscores' and 'schools' tables. I will filter the results to only include schools in Riverside and calculate the average of the average math scores. I will then select the CDSCode and FundingType of these schools.",
+        "SQL": "SELECT T2.CDSCode, T2.FundingType FROM satscores T1 JOIN schools T2 ON T1.cds = T2.CDSCode WHERE T2.County = 'Riverside' AND (SELECT AVG(T1.AvgScrMath) FROM satscores T1 JOIN schools T2 ON T1.cds = T2.CDSCode WHERE T2.County = 'Riverside' AND T1.AvgScrMath IS NOT NULL) > 400;"
+    },
+    "evaluation": {
+        "Question": "Name schools in Riverside which the average of average math score for SAT is grater than 400, what is the funding type of these schools?",
+        "Evidence": "Average of average math = sum(average math scores) / count(schools).",
+        "GOLD_SQL": "SELECT T1.sname, T2.`Charter Funding Type` FROM satscores AS T1 INNER JOIN frpm AS T2 ON T1.cds = T2.CDSCode WHERE T2.`District Name` LIKE 'Riverside%' GROUP BY T1.sname, T2.`Charter Funding Type` HAVING CAST(SUM(T1.AvgScrMath) AS REAL) / COUNT(T1.cds) > 400",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T2.CDSCode, T2.FundingType FROM satscores T1 JOIN schools T2 ON T1.cds = T2.CDSCode WHERE T2.County = 'Riverside' AND (SELECT AVG(T1.AvgScrMath) FROM satscores T1 JOIN schools T2 ON T1.cds = T2.CDSCode WHERE T2.County = 'Riverside' AND T1.AvgScrMath IS NOT NULL) > 400;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T2.CDSCode, T2.FundingType FROM satscores T1 JOIN schools T2 ON T1.cds = T2.CDSCode WHERE T2.County = 'Riverside' AND (SELECT AVG(T1.AvgScrMath) FROM satscores T1 JOIN schools T2 ON T1.cds = T2.CDSCode WHERE T2.County = 'Riverside' AND T1.AvgScrMath IS NOT NULL) > 400;"
+        }
+    },
+    "analysis": "this example have 2 errors first incorrect table table selection (selects schools table over frpm table while th)",
+    "latency": 131.2145698070526,
+    "cost": 0.040112260000000004,
+    "module_latencies": {
+        "keyword_extraction": 21.91448426246643,
+        "entity_retrieval": 78.82954549789429,
+        "context_retrieval": 15.79307746887207,
+        "table_selection": 5.079602241516113,
+        "column_selection": 2.333801031112671,
+        "candidate_generation": 3.201970100402832,
+        "revision": 3.981496810913086,
+        "evaluation": 0.08059239387512207
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00013154999999999997,
+        "entity_retrieval": 6.071000000000011e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.00953,
+        "column_selection": 0.007980000000000001,
+        "candidate_generation": 0.007765000000000001,
+        "revision": 0.014645,
+        "evaluation": 0
+    }
+}

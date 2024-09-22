@@ -1,0 +1,229 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "llama-3"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "titles",
+        "posts",
+        "user",
+        "csgillespie",
+        "DisplayName"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "posts": [
+                "Title"
+            ],
+            "users": [
+                "DisplayName"
+            ]
+        },
+        "similar_values": {
+            "users": {
+                "DisplayName": [
+                    "csgillespie",
+                    "user"
+                ]
+            }
+        }
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "posts": {
+                "ownerdisplayname": {
+                    "column_name": "Owner Display Name",
+                    "column_description": "the display name of the post owner",
+                    "value_description": ""
+                },
+                "title": {
+                    "column_name": "",
+                    "column_description": "the title of the post",
+                    "value_description": ""
+                }
+            },
+            "posthistory": {
+                "userid": {
+                    "column_name": "User Id",
+                    "column_description": "the user who post the post",
+                    "value_description": ""
+                },
+                "id": {
+                    "column_name": "",
+                    "column_description": "the post history id",
+                    "value_description": ""
+                },
+                "userdisplayname": {
+                    "column_name": "User Display Name",
+                    "column_description": "user's display name",
+                    "value_description": ""
+                }
+            },
+            "postlinks": {
+                "postid": {
+                    "column_name": "Post Id",
+                    "column_description": "the post id",
+                    "value_description": ""
+                }
+            },
+            "comments": {
+                "userdisplayname": {
+                    "column_name": "User Display Name",
+                    "column_description": "user's display name",
+                    "value_description": ""
+                }
+            },
+            "users": {
+                "displayname": {
+                    "column_name": "Display Name",
+                    "column_description": "the user's display name",
+                    "value_description": ""
+                }
+            },
+            "tags": {
+                "count": {
+                    "column_name": "",
+                    "column_description": "the count of posts that contain this tag",
+                    "value_description": "more counts --> this tag is more popular"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "users": [
+                "Id",
+                "Reputation",
+                "CreationDate",
+                "DisplayName",
+                "LastAccessDate",
+                "WebsiteUrl",
+                "Location",
+                "AboutMe",
+                "Views",
+                "UpVotes",
+                "DownVotes",
+                "AccountId",
+                "Age",
+                "ProfileImageUrl"
+            ],
+            "posts": [
+                "Id",
+                "PostTypeId",
+                "AcceptedAnswerId",
+                "CreaionDate",
+                "Score",
+                "ViewCount",
+                "Body",
+                "OwnerUserId",
+                "LasActivityDate",
+                "Title",
+                "Tags",
+                "AnswerCount",
+                "CommentCount",
+                "FavoriteCount",
+                "LastEditorUserId",
+                "LastEditDate",
+                "CommunityOwnedDate",
+                "ParentId",
+                "ClosedDate",
+                "OwnerDisplayName",
+                "LastEditorDisplayName"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to find the titles of posts owned by the user with the display name 'csgillespie'. First, we need to identify the user with the display name 'csgillespie' from the 'users' table to get the UserId. Then, we need to use this UserId to find the posts owned by this user in the 'posts' table and retrieve their titles. Therefore, the 'users' table is necessary to get the UserId of 'csgillespie', and the 'posts' table is necessary to get the titles of the posts owned by this user.",
+        "selected_tables": [
+            "users",
+            "posts"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "users": [
+                "Id",
+                "DisplayName"
+            ],
+            "posts": [
+                "OwnerUserId",
+                "Title"
+            ]
+        },
+        "chain_of_thought_reasoning": "To answer the question, we need to identify the posts owned by the user with the display name 'csgillespie'. This requires us to first find the user ID of 'csgillespie' from the 'users' table and then use this ID to find the corresponding posts in the 'posts' table. The essential columns are 'DisplayName' and 'Id' from the 'users' table to identify the user, and 'OwnerUserId' and 'Title' from the 'posts' table to find and list the titles of the posts owned by this user."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, I need to identify the user with the DisplayName 'csgillespie'. Then, I need to find all posts owned by this user by matching the user's Id with the OwnerUserId in the posts table. Finally, I will select the titles of these posts.",
+        "SQL": "SELECT T2.Title FROM users T1 JOIN posts T2 ON T1.Id = T2.OwnerUserId WHERE T1.DisplayName = 'csgillespie';"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "The question asks for the titles of the posts owned by the user with the display name 'csgillespie'. To achieve this, I need to join the 'users' table with the 'posts' table on the 'Id' column of 'users' and the 'OwnerUserId' column of 'posts'. I will then filter the results to only include posts where the 'DisplayName' is 'csgillespie'. Finally, I will select the 'Title' column from the 'posts' table.",
+        "SQL": "SELECT T2.Title FROM users T1 JOIN posts T2 ON T1.Id = T2.OwnerUserId WHERE T1.DisplayName = 'csgillespie' AND T2.Title IS NOT NULL;"
+    },
+    "evaluation": {
+        "Question": "Please list the titles of the posts owned by the user csgillespie?",
+        "Evidence": "\"csgillespie\" is the DisplayName of user",
+        "GOLD_SQL": "SELECT T1.Title FROM posts AS T1 INNER JOIN users AS T2 ON T1.OwnerUserId = T2.Id WHERE T2.DisplayName = 'csgillespie'",
+        "candidate_generation": {
+            "exec_res": 1,
+            "exec_err": "--",
+            "Predicted SQL": "SELECT T2.Title FROM users T1 JOIN posts T2 ON T1.Id = T2.OwnerUserId WHERE T1.DisplayName = 'csgillespie';"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "SELECT T2.Title FROM users T1 JOIN posts T2 ON T1.Id = T2.OwnerUserId WHERE T1.DisplayName = 'csgillespie' AND T2.Title IS NOT NULL;"
+        }
+    },
+    "latency": 42.75127577781677,
+    "cost": 0.03615189,
+    "module_latencies": {
+        "keyword_extraction": 1.1430363655090332,
+        "entity_retrieval": 17.402284622192383,
+        "context_retrieval": 5.795248746871948,
+        "table_selection": 7.306358337402344,
+        "column_selection": 3.2792160511016846,
+        "candidate_generation": 2.0436816215515137,
+        "revision": 5.090564966201782,
+        "evaluation": 0.690885066986084
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011219999999999999,
+        "entity_retrieval": 1.4689999999999997e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.009855,
+        "column_selection": 0.00736,
+        "candidate_generation": 0.00613,
+        "revision": 0.01268,
+        "evaluation": 0
+    }
+}

@@ -1,0 +1,267 @@
+{
+    "pipeline_config": {
+        "keyword_extraction": {
+            "model": "gpt-4o-mini"
+        },
+        "entity_retrieval": {
+            "embedding_model_name": "openai_embedding_3_large"
+        },
+        "context_retrieval": {
+            "top_k": 5
+        },
+        "column_filtering": {
+            "model": "gpt-4o"
+        },
+        "table_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "column_selection": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "schema_selection_fusion": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "candidate_generation": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        },
+        "revision": {
+            "model": "gpt-4o",
+            "num_samples": 1
+        }
+    },
+    "keyword_extraction": [
+        "illustrator",
+        "least amount of cards",
+        "format of play",
+        "artist",
+        "format",
+        "MIN(artist)"
+    ],
+    "entity_retrieval": {
+        "similar_columns": {
+            "legalities": [
+                "format"
+            ],
+            "cards": [
+                "artist"
+            ]
+        },
+        "similar_values": {}
+    },
+    "context_retrieval": {
+        "schema_with_descriptions": {
+            "cards": {
+                "artist": {
+                    "column_name": "",
+                    "column_description": "The name of the artist that illustrated the card art.",
+                    "value_description": ""
+                },
+                "isfullart": {
+                    "column_name": "is Full Art",
+                    "column_description": "If the card has full artwork.",
+                    "value_description": "0: doesn't have, 1: has full artwork"
+                },
+                "id": {
+                    "column_name": "unique id number identifying the cards",
+                    "column_description": "",
+                    "value_description": ""
+                },
+                "number": {
+                    "column_name": "",
+                    "column_description": "The number of the card",
+                    "value_description": ""
+                },
+                "frameversion": {
+                    "column_name": "frame Version",
+                    "column_description": "The version of the card frame style.",
+                    "value_description": "\"1993\", \"1997\", \"2003\", \"2015\", \"future\""
+                }
+            },
+            "set_translations": {
+                "language": {
+                    "column_name": "",
+                    "column_description": "language of this card set",
+                    "value_description": ""
+                },
+                "translation": {
+                    "column_name": "",
+                    "column_description": "translation of this card set",
+                    "value_description": ""
+                }
+            },
+            "sets": {
+                "basesetsize": {
+                    "column_name": "base Set Size",
+                    "column_description": "The number of cards in the set.",
+                    "value_description": ""
+                },
+                "totalsetsize": {
+                    "column_name": "total Set Size",
+                    "column_description": "The total number of cards in the set, including promotional and related supplemental products but excluding Alchemy modifications - however those cards are included in the set itself.",
+                    "value_description": ""
+                }
+            },
+            "legalities": {
+                "format": {
+                    "column_name": "",
+                    "column_description": "format of play",
+                    "value_description": "each value refers to different rules to play"
+                }
+            }
+        }
+    },
+    "column_filtering": "Removed",
+    "table_selection": {
+        "tentative_schema": {
+            "cards": [
+                "id",
+                "artist",
+                "asciiName",
+                "availability",
+                "borderColor",
+                "cardKingdomFoilId",
+                "cardKingdomId",
+                "colorIdentity",
+                "colorIndicator",
+                "colors",
+                "convertedManaCost",
+                "duelDeck",
+                "edhrecRank",
+                "faceConvertedManaCost",
+                "faceName",
+                "flavorName",
+                "flavorText",
+                "frameEffects",
+                "frameVersion",
+                "hand",
+                "hasAlternativeDeckLimit",
+                "hasContentWarning",
+                "hasFoil",
+                "hasNonFoil",
+                "isAlternative",
+                "isFullArt",
+                "isOnlineOnly",
+                "isOversized",
+                "isPromo",
+                "isReprint",
+                "isReserved",
+                "isStarter",
+                "isStorySpotlight",
+                "isTextless",
+                "isTimeshifted",
+                "keywords",
+                "layout",
+                "leadershipSkills",
+                "life",
+                "loyalty",
+                "manaCost",
+                "mcmId",
+                "mcmMetaId",
+                "mtgArenaId",
+                "mtgjsonV4Id",
+                "mtgoFoilId",
+                "mtgoId",
+                "multiverseId",
+                "name",
+                "number",
+                "originalReleaseDate",
+                "originalText",
+                "originalType",
+                "otherFaceIds",
+                "power",
+                "printings",
+                "promoTypes",
+                "purchaseUrls",
+                "rarity",
+                "scryfallId",
+                "scryfallIllustrationId",
+                "scryfallOracleId",
+                "setCode",
+                "side",
+                "subtypes",
+                "supertypes",
+                "tcgplayerProductId",
+                "text",
+                "toughness",
+                "type",
+                "types",
+                "uuid",
+                "variations",
+                "watermark"
+            ],
+            "legalities": [
+                "id",
+                "format",
+                "status",
+                "uuid"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine the illustrator who illustrated the least amount of cards, we need to count the number of cards each artist has illustrated. This information is found in the 'cards' table, specifically in the 'artist' column. Once we identify the artist with the least number of cards, we need to list the formats of play for the cards they illustrated. The formats of play are stored in the 'legalities' table, which references the 'cards' table through the 'uuid' column. Therefore, we need both the 'cards' and 'legalities' tables to answer the question.",
+        "selected_tables": [
+            "cards",
+            "legalities"
+        ]
+    },
+    "column_selection": {
+        "selected_schema": {
+            "cards": [
+                "artist",
+                "uuid"
+            ],
+            "legalities": [
+                "format",
+                "uuid"
+            ]
+        },
+        "chain_of_thought_reasoning": "To determine the illustrator who illustrated the least amount of cards, we need to count the number of cards each artist has illustrated. For this, we need the 'artist' column from the 'cards' table. To list the format of play of the cards illustrated by this artist, we need to join the 'cards' table with the 'legalities' table using the 'uuid' column, and then select the 'format' column from the 'legalities' table."
+    },
+    "candidate_generation": {
+        "chain_of_thought_reasoning": "First, I need to find the artist who illustrated the least number of cards. To do this, I will count the number of cards illustrated by each artist and order the results in ascending order, limiting the result to 1 to get the artist with the least number of cards. Then, I will join this result with the legalities table to get the formats of play for the cards illustrated by this artist.",
+        "SQL": "WITH LeastIllustratedArtist AS (SELECT artist FROM cards GROUP BY artist ORDER BY COUNT(*) ASC LIMIT 1) SELECT l.format FROM legalities l JOIN cards c ON l.uuid = c.uuid JOIN LeastIllustratedArtist lia ON c.artist = lia.artist;"
+    },
+    "revision": {
+        "chain_of_thought_reasoning": "To find the illustrator who illustrated the least amount of cards, I first need to identify the artist with the minimum count of cards illustrated. Then, I need to list the format of play of the cards that this artist illustrated. I will use a common table expression (CTE) to find the artist with the least number of cards illustrated and then join this result with the legalities table to get the required formats.",
+        "SQL": "WITH LeastIllustratedArtist AS (SELECT artist FROM cards GROUP BY artist ORDER BY COUNT(*) ASC LIMIT 1) SELECT l.format FROM legalities l JOIN cards c ON l.uuid = c.uuid WHERE c.artist = (SELECT artist FROM LeastIllustratedArtist);"
+    },
+    "evaluation": {
+        "Question": "Who is the illustrator that illustrated the least amount of cards? List the format of play of the cards that he/she illustrated.",
+        "Evidence": "format of the cards refers to format; illustrator refers to artist; the least amount of cards refers to MIN(artist)",
+        "GOLD_SQL": "SELECT T1.artist, T2.format FROM cards AS T1 INNER JOIN legalities AS T2 ON T2.uuid = T1.uuid GROUP BY T1.artist ORDER BY COUNT(T1.id) ASC LIMIT 1",
+        "candidate_generation": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "WITH LeastIllustratedArtist AS (SELECT artist FROM cards GROUP BY artist ORDER BY COUNT(*) ASC LIMIT 1) SELECT l.format FROM legalities l JOIN cards c ON l.uuid = c.uuid JOIN LeastIllustratedArtist lia ON c.artist = lia.artist;"
+        },
+        "revision": {
+            "exec_res": 0,
+            "exec_err": "incorrect answer",
+            "Predicted SQL": "WITH LeastIllustratedArtist AS (SELECT artist FROM cards GROUP BY artist ORDER BY COUNT(*) ASC LIMIT 1) SELECT l.format FROM legalities l JOIN cards c ON l.uuid = c.uuid WHERE c.artist = (SELECT artist FROM LeastIllustratedArtist);"
+        }
+    },
+    "latency": 125.90864062309265,
+    "cost": 0.03664984,
+    "module_latencies": {
+        "keyword_extraction": 1.6312353610992432,
+        "entity_retrieval": 75.24349212646484,
+        "context_retrieval": 16.58844780921936,
+        "table_selection": 6.030504465103149,
+        "column_selection": 2.2421224117279053,
+        "candidate_generation": 16.441962003707886,
+        "revision": 4.963402271270752,
+        "evaluation": 2.7674741744995117
+    },
+    "module_costs": {
+        "keyword_extraction": 0.00011999999999999999,
+        "entity_retrieval": 3.484000000000001e-05,
+        "context_retrieval": 0,
+        "table_selection": 0.00968,
+        "column_selection": 0.00805,
+        "candidate_generation": 0.006745,
+        "revision": 0.012020000000000001,
+        "evaluation": 0
+    }
+}

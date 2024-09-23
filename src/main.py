@@ -21,7 +21,7 @@ from src.pipeline.table_selection import table_selection
 from src.pipeline_config import PIPELINE_CONFIG
 from utils.task import Task
 
-data_path = "C:\\Users/yousf\Bureau\ConvergenceAI\CHESS_Impl\data\\subsampled_dev_set\\sub_sampled_bird_dev_set.json"
+data_path = os.getenv("RUN_PATH")
 
 
 def run_task_modified(task: Any, llm: UnifiedLLMInterface, embedding: UnifiedEmbeddingInterface) -> Dict[str, Any]:
